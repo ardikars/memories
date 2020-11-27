@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2020 Memories Project
+
+SPDX-License-Identifier: Apache-2.0
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>memories</artifactId>
+        <groupId>memories</groupId>
+        <version>0.1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>jni</artifactId>
+
+    <properties>
+        <jdk.version>${java.jdk2.version}</jdk.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>memories</groupId>
+            <artifactId>spi</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <exportAntProperties>true</exportAntProperties>
+                            <target>
+                                <property name="build.os.name" value="${os.name}"/>
+                                <condition property="build.os.family" value="windows">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <contains string="${build.os.name}" substring="windows" casesensitive="false"/>
+                                </condition>
+                                <condition property="build.os.family" value="mac">
+                                    <or>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <contains string="${build.os.name}" substring="darwin" casesensitive="false"/>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <contains string="${build.os.name}" substring="mac" casesensitive="false"/>
+                                    </or>
+                                </condition>
+                                <property name="build.os.family" value="other"/>
+                                <property name="build.os.arch" value="${os.arch}"/>
+
+                                <!-- Add other supported platforms here -->
+                                <condition property="jre.arch" value="x86">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <matches pattern="(i[3456]86|pentium)" string="${build.os.arch}"/>
+                                </condition>
+                                <condition property="jre.arch" value="x86-64">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <matches pattern="(x86_64|amd64|em64t)" string="${build.os.arch}"/>
+                                </condition>
+                                <condition property="jre.arch" value="ppc">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <matches pattern="(powerpc|power)" string="${build.os.arch}"/>
+                                </condition>
+                                <condition property="jre.arch" value="ppc64le">
+                                    <or>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <matches pattern="(powerpc64le|power64le|ppc64le)" string="${build.os.arch}"/>
+                                        <and>
+                                            <!--suppress UnresolvedMavenProperty -->
+                                            <matches pattern="(powerpc64|power64|ppc64)" string="${build.os.arch}"/>
+                                            <!--suppress UnresolvedMavenProperty -->
+                                            <matches pattern="little" string="${build.os.endianess}"/>
+                                        </and>
+                                    </or>
+                                </condition>
+                                <condition property="jre.arch" value="ppc64">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <matches pattern="(powerpc64|power64)" string="${build.os.arch}"/>
+                                </condition>
+                                <condition property="jre.arch" value="armel">
+                                    <and>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <matches pattern="arm" string="${build.os.arch}"/>
+                                        <!--suppress UnresolvedMavenProperty -->
+                                        <matches pattern="true" string="${build.isArmSoftFloat}"/>
+                                    </and>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <property name="jre.arch" value="${build.os.arch}"/>
+
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="linux-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.name}" arg2="Linux"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="aix-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.name}" arg2="AIX"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="win32-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.family}" arg2="windows"/>
+                                </condition>
+                                <!-- Darwin builds are universal, no arch required -->
+                                <condition property="os.prefix" value="darwin">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.family}" arg2="mac"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="sunos-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.name}" arg2="SunOS"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="freebsd-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.name}" arg2="FreeBSD"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="openbsd-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.name}" arg2="OpenBSD"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="netbsd-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.name}" arg2="NetBSD"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <condition property="os.prefix" value="kfreebsd-${jre.arch}">
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <equals arg1="${build.os.name}" arg2="GNU/kFreeBSD"/>
+                                </condition>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <fail unless="os.prefix" message="OS/arch not supported (${os.name}/${jre.arch})."/>
+
+                                <!--suppress UnresolvedMavenProperty -->
+                                <echo>Java version ${java.version}, ant: ${ant.java.version}</echo>
+                                <echo>${java.vm.name} (${java.vm.vendor}, ${java.vm.version})</echo>
+                                <echo>java.home=${java.home}</echo>
+                                <echo>java.library.path=${java.library.path}</echo>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <echo>os.prefix=${os.prefix}</echo>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <echo>os.name=${build.os.name}</echo>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <echo>os.arch=${build.os.arch}</echo>
+
+                                <property name="runtime_classpath" refid="maven.compile.classpath"/>
+                                <exec executable="javah">
+                                    <arg value="-cp"/>
+                                    <!--suppress UnresolvedMavenProperty -->
+                                    <arg value="${runtime_classpath}"/>
+                                    <arg value="-d"/>
+                                    <arg value="${project.build.sourceDirectory}/../c/include"/>
+                                    <arg value="memories.jni.JNIMemory$Unsafe"/>
+                                    <arg value="memories.jni.JNIMemoryAllocator$Unsafe"/>
+                                </exec>
+                                <exec executable="cmake">
+                                    <arg value="."/>
+                                </exec>
+                                <exec executable="make">
+                                </exec>
+                                <!--suppress UnresolvedMavenProperty -->
+                                <copy file="memories.jnilib"
+                                      todir="${project.basedir}/src/main/resources/native/memories/jni/${os.prefix}"
+                                      overwrite="true"/>
+                                <delete dir="CMakeFiles"/>
+                                <delete file="cmake_install.cmake"/>
+                                <delete file="CMakeCache.txt"/>
+                                <delete file="Makefile"/>
+                                <delete file="memories.jnilib"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

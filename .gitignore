@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2020 Memories Project
+#
+# SPDX-License-Identifier: Apache-2.0
+
+*.iml
+*.log
+*~
+.mvn/wrapper/maven-wrapper.jar
+
+.idea
+target
+jni/src/main/c/include/memories_jni_JNIMemory_Unsafe.h
+jni/src/main/c/include/memories_jni_JNIMemoryAllocator_Unsafe.h
+jni/target
+jni/CMakeFiles
+jni/CMakeCache.txt
+jni/cmake_install.cmake
+jni/Makefile
+spi/target
