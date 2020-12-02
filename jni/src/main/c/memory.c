@@ -89,9 +89,8 @@ JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeSetLong(JNI
   MEMCPY(env, L2A(j_address), &j_value, sizeof(j_value));
 }
 
-JNIEXPORT jbyteArray JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeGetBytes(JNIEnv *env, jclass UNUSED(j_cls), jlong j_address, jbyteArray j_dst, jlong j_dst_idx, jlong j_dst_len) {
+JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeGetBytes(JNIEnv *env, jclass UNUSED(j_cls), jlong j_address, jbyteArray j_dst, jlong j_dst_idx, jlong j_dst_len) {
   (*env)->SetByteArrayRegion(env, j_dst, j_dst_idx, j_dst_len, L2A(j_address));
-  return j_dst;
 }
 
 JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeSetBytes(JNIEnv *env, jclass UNUSED(j_cls), jlong j_address, jbyteArray j_src, jlong j_src_idx, jlong j_src_len) {

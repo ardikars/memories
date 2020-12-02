@@ -6,13 +6,12 @@
 
 package memories.jni;
 
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
-import memories.spi.exception.MemoryAccessException;
-
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.concurrent.atomic.AtomicLong;
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
+import memories.spi.exception.MemoryAccessException;
 
 class JNIMemory implements Memory {
 
@@ -72,6 +71,29 @@ class JNIMemory implements Memory {
     return (i << 48) | ((i & 0xffff0000L) << 16) | ((i >>> 16) & 0xffff0000L) | (i >>> 48);
   }
 
+  //
+  // These methods construct integers from bytes.  The byte ordering
+  // is the native endianness of this platform.
+  private int pickPos(int top, int pos) {
+    if (reverse) {
+      return top - pos;
+    } else {
+      return pos;
+    }
+  }
+
+  private byte pick(byte le, byte be) {
+    return reverse ? be : le;
+  }
+
+  private short pick(short le, short be) {
+    return reverse ? be : le;
+  }
+
+  private int pick(int le, int be) {
+    return reverse ? be : le;
+  }
+
   public long capacity() {
     return capacity;
   }
@@ -89,9 +111,16 @@ class JNIMemory implements Memory {
       this.markedWriterIndex = 0L;
       return this;
     } else {
-      this.address = Unsafe.nativeRealloc(address, newCapacity);
-      this.capacity = newCapacity;
-      return this;
+      synchronized (this) {
+        ensureAccessible();
+        long newAddress = JNIMemoryAllocator.Unsafe.nativeMalloc(newCapacity);
+        Unsafe.nativeMemcpy(newAddress, address, capacity);
+        Unsafe.nativeFree(address);
+        this.address = newAddress;
+        this.reference.address.set(newAddress);
+        this.capacity = newCapacity;
+        return this;
+      }
     }
   }
 
@@ -246,7 +275,7 @@ class JNIMemory implements Memory {
 
   // @Override
   public int getUnsignedShortRE(long index) {
-    return shortReverseBytes((short) getUnsignedShort(index));
+    return shortReverseBytes((short) getUnsignedShort(index)) & 0xFFFF;
   }
 
   // @Override
@@ -261,7 +290,7 @@ class JNIMemory implements Memory {
 
   // @Override
   public long getUnsignedIntRE(long index) {
-    return intReverseBytes((int) getUnsignedInt(index));
+    return intReverseBytes((int) getUnsignedInt(index)) & 0xFFFFFFFFL;
   }
 
   // @Override
@@ -680,9 +709,6 @@ class JNIMemory implements Memory {
   }
 
   void checkIndex(long index, long fieldLength) {
-    if (reference.address.get() == 0L) {
-      throw new MemoryAccessException("Accessing closed buffer.");
-    }
     if (isOutOfBounds(index, fieldLength, capacity)) {
       throw new IndexOutOfBoundsException(
           "index: "
@@ -692,6 +718,13 @@ class JNIMemory implements Memory {
               + " (expected: range(0, "
               + capacity
               + "))");
+    }
+    ensureAccessible();
+  }
+
+  void ensureAccessible() {
+    if (reference.address.get() == 0L) {
+      throw new MemoryAccessException("Accessing closed buffer.");
     }
   }
 
@@ -841,10 +874,17 @@ class JNIMemory implements Memory {
   public short getShort(long index) {
     // check buffer overflow
     checkIndex(index, SHORT_SIZE);
-    if (reverse) {
-      return shortReverseBytes(Unsafe.nativeGetShort(address + index));
+    long offset = address + index;
+    if ((offset & 1) == 0) {
+      if (reverse) {
+        return shortReverseBytes(Unsafe.nativeGetShort(offset));
+      } else {
+        return Unsafe.nativeGetShort(offset);
+      }
     } else {
-      return Unsafe.nativeGetShort(address + index);
+      return (short)
+          (((Unsafe.nativeGetByte(offset) & 0xFF) << pickPos(8, 0))
+              | ((Unsafe.nativeGetByte(offset + 1) & 0xFF) << pickPos(8, 8)));
     }
   }
 
@@ -852,10 +892,22 @@ class JNIMemory implements Memory {
   public int getInt(long index) {
     // check buffer overflow
     checkIndex(index, INT_SIZE);
-    if (reverse) {
-      return intReverseBytes(Unsafe.nativeGetInt(address + index));
+
+    long offset = address + index;
+    if ((offset & 3) == 0) {
+      if (reverse) {
+        return intReverseBytes(Unsafe.nativeGetInt(offset));
+      } else {
+        return Unsafe.nativeGetInt(offset);
+      }
+    } else if ((offset & 1) == 0) {
+      return (Unsafe.nativeGetShort(offset) & 0xFFFF) << pickPos(16, 0)
+          | (Unsafe.nativeGetShort(offset + 2) & 0xFFFF) << pickPos(16, 16);
     } else {
-      return Unsafe.nativeGetInt(address + index);
+      return ((Unsafe.nativeGetByte(offset) & 0xFF) << pickPos(24, 0)
+          | (Unsafe.nativeGetByte(offset + 1) & 0xFF) << pickPos(24, 8)
+          | (Unsafe.nativeGetByte(offset + 2) & 0xFF) << pickPos(24, 16)
+          | (Unsafe.nativeGetByte(offset + 3) & 0xFF) << pickPos(24, 24));
     }
   }
 
@@ -863,10 +915,31 @@ class JNIMemory implements Memory {
   public long getLong(long index) {
     // check buffer overflow
     checkIndex(index, LONG_SIZE);
-    if (reverse) {
-      return longReverseBytes(Unsafe.nativeGetLong(address + index));
+
+    long offset = address + index;
+    if ((offset & 7) == 0) {
+      if (reverse) {
+        return longReverseBytes(Unsafe.nativeGetLong(offset));
+      } else {
+        return Unsafe.nativeGetLong(offset);
+      }
+    } else if ((offset & 3) == 0) {
+      return ((Unsafe.nativeGetInt(offset) & 0xFFFFFFFFL) << pickPos(32, 0))
+          | ((Unsafe.nativeGetInt(offset + 4) & 0xFFFFFFFFL) << pickPos(32, 32));
+    } else if ((offset & 1) == 0) {
+      return (((Unsafe.nativeGetShort(offset) & 0xFFFFL) << pickPos(48, 0))
+          | ((Unsafe.nativeGetShort(offset + 2) & 0xFFFFL) << pickPos(48, 16))
+          | ((Unsafe.nativeGetShort(offset + 4) & 0xFFFFL) << pickPos(48, 32))
+          | ((Unsafe.nativeGetShort(offset + 6) & 0xFFFFL) << pickPos(48, 48)));
     } else {
-      return Unsafe.nativeGetLong(address + index);
+      return (((Unsafe.nativeGetByte(offset) & 0xFFL) << pickPos(56, 0))
+          | ((Unsafe.nativeGetByte(offset + 1) & 0xFFL) << pickPos(56, 8))
+          | ((Unsafe.nativeGetByte(offset + 2) & 0xFFL) << pickPos(56, 16))
+          | ((Unsafe.nativeGetByte(offset + 3) & 0xFFL) << pickPos(56, 24))
+          | ((Unsafe.nativeGetByte(offset + 4) & 0xFFL) << pickPos(56, 32))
+          | ((Unsafe.nativeGetByte(offset + 5) & 0xFFL) << pickPos(56, 40))
+          | ((Unsafe.nativeGetByte(offset + 6) & 0xFFL) << pickPos(56, 48))
+          | ((Unsafe.nativeGetByte(offset + 7) & 0xFFL) << pickPos(56, 56)));
     }
   }
 
@@ -882,10 +955,16 @@ class JNIMemory implements Memory {
   public Memory setShort(long index, int value) {
     // check buffer overflow
     checkIndex(index, SHORT_SIZE);
-    if (reverse) {
-      Unsafe.nativeSetShort(address + index, shortReverseBytes((short) value));
+    long offset = address + index;
+    if ((offset & 1) == 0) {
+      if (reverse) {
+        Unsafe.nativeSetShort(offset, shortReverseBytes((short) value));
+      } else {
+        Unsafe.nativeSetShort(offset, (short) value);
+      }
     } else {
-      Unsafe.nativeSetShort(address + index, (short) value);
+      Unsafe.nativeSetByte(offset, pick((byte) (value >>> 0), (byte) (value >>> 8)));
+      Unsafe.nativeSetByte(offset + 1, pick((byte) (value >>> 8), (byte) (value >>> 0)));
     }
     return this;
   }
@@ -894,10 +973,21 @@ class JNIMemory implements Memory {
   public Memory setInt(long index, int value) {
     // check buffer overflow
     checkIndex(index, INT_SIZE);
-    if (reverse) {
-      Unsafe.nativeSetInt(address + index, intReverseBytes(value));
+    long offset = address + index;
+    if ((offset & 3) == 0) {
+      if (reverse) {
+        Unsafe.nativeSetInt(offset, intReverseBytes(value));
+      } else {
+        Unsafe.nativeSetInt(offset, value);
+      }
+    } else if ((offset & 1) == 0) {
+      Unsafe.nativeSetShort(offset, pick((short) value, (short) (value >>> 16)));
+      Unsafe.nativeSetShort(offset + 2, pick((short) (value >>> 16), (short) value));
     } else {
-      Unsafe.nativeSetInt(address + index, value);
+      Unsafe.nativeSetByte(offset, pick((byte) value, (byte) (value >>> 24)));
+      Unsafe.nativeSetByte(offset + 1, pick((byte) (value >>> 8), (byte) (value >>> 16)));
+      Unsafe.nativeSetByte(offset + 2, pick((byte) (value >>> 16), (byte) (value >>> 8)));
+      Unsafe.nativeSetByte(offset + 3, pick((byte) (value >>> 24), (byte) value));
     }
     return this;
   }
@@ -906,10 +996,30 @@ class JNIMemory implements Memory {
   public Memory setLong(long index, long value) {
     // check buffer overflow
     checkIndex(index, LONG_SIZE);
-    if (reverse) {
-      Unsafe.nativeSetLong(address + index, longReverseBytes(value));
+    long offset = address + index;
+    if ((offset & 7) == 0) {
+      if (reverse) {
+        Unsafe.nativeSetLong(offset, longReverseBytes(value));
+      } else {
+        Unsafe.nativeSetLong(offset, value);
+      }
+    } else if ((offset & 3) == 0) {
+      Unsafe.nativeSetInt(offset, pick((int) (value), (int) (value >>> 32)));
+      Unsafe.nativeSetInt(offset + 4, pick((int) (value >>> 32), (int) (value)));
+    } else if ((offset & 1) == 0) {
+      Unsafe.nativeSetShort(offset, pick((short) (value), (short) (value >>> 48)));
+      Unsafe.nativeSetShort(offset + 2, pick((short) (value >>> 16), (short) (value >>> 32)));
+      Unsafe.nativeSetShort(offset + 4, pick((short) (value >>> 32), (short) (value >>> 16)));
+      Unsafe.nativeSetShort(offset + 6, pick((short) (value >>> 48), (short) (value)));
     } else {
-      Unsafe.nativeSetLong(address + index, value);
+      Unsafe.nativeSetByte(offset, pick((byte) value, (byte) (value >>> 56)));
+      Unsafe.nativeSetByte(offset + 1, pick((byte) (value >>> 8), (byte) (value >>> 48)));
+      Unsafe.nativeSetByte(offset + 2, pick((byte) (value >>> 16), (byte) (value >>> 40)));
+      Unsafe.nativeSetByte(offset + 3, pick((byte) (value >>> 24), (byte) (value >>> 32)));
+      Unsafe.nativeSetByte(offset + 4, pick((byte) (value >>> 32), (byte) (value >>> 24)));
+      Unsafe.nativeSetByte(offset + 5, pick((byte) (value >>> 40), (byte) (value >>> 16)));
+      Unsafe.nativeSetByte(offset + 6, pick((byte) (value >>> 48), (byte) (value >>> 8)));
+      Unsafe.nativeSetByte(offset + 7, pick((byte) (value >>> 56), (byte) value));
     }
     return this;
   }
@@ -948,11 +1058,13 @@ class JNIMemory implements Memory {
 
   // @Override
   public boolean release() {
-    if (reference.address.get() > 0) {
-      Unsafe.nativeFree(reference.address.getAndSet(0));
-      return true;
-    } else {
-      return false;
+    synchronized (this) {
+      if (reference.address.get() > 0) {
+        Unsafe.nativeFree(reference.address.getAndSet(0));
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 
@@ -986,7 +1098,7 @@ class JNIMemory implements Memory {
 
     private static native void nativeSetLong(long address, long value);
 
-    private static native byte[] nativeGetBytes(long address, byte[] dst, long dstIdx, long length);
+    private static native void nativeGetBytes(long address, byte[] dst, long dstIdx, long length);
 
     private static native void nativeSetBytes(long address, byte[] src, long srcIdx, long length);
   }

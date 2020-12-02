@@ -4,6 +4,7 @@
 
 package memories.jni;
 
+import java.io.*;
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
 import org.junit.jupiter.api.Assertions;
@@ -12,8 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-
-import java.io.*;
 
 @RunWith(JUnitPlatform.class)
 public class MemoryAllocatorTest {
@@ -73,5 +72,40 @@ public class MemoryAllocatorTest {
       JNIMemoryAllocator.closeOutputStream(os);
     } catch (IOException e) {
     }
+  }
+
+  @Test
+  void getName() {
+    Assertions.assertEquals("linux", JNIMemoryAllocator.getName("LINUX".toUpperCase()));
+    Assertions.assertEquals("darwin", JNIMemoryAllocator.getName("MAC OS".toUpperCase()));
+    Assertions.assertEquals("windows", JNIMemoryAllocator.getName("WINDOWS".toUpperCase()));
+    Assertions.assertEquals(null, JNIMemoryAllocator.getName("Unknown".toUpperCase()));
+  }
+
+  @Test
+  void getArch() {
+    Assertions.assertEquals("x86", JNIMemoryAllocator.getArch("i386".toLowerCase()));
+    Assertions.assertEquals("x86", JNIMemoryAllocator.getArch("i686".toLowerCase()));
+    Assertions.assertEquals("x86", JNIMemoryAllocator.getArch("i586".toLowerCase()));
+    Assertions.assertEquals("x86-64", JNIMemoryAllocator.getArch("x86_64".toLowerCase()));
+    Assertions.assertEquals("x86-64", JNIMemoryAllocator.getArch("amd64".toLowerCase()));
+    Assertions.assertEquals("x86-64", JNIMemoryAllocator.getArch("x64".toLowerCase()));
+    Assertions.assertEquals(null, JNIMemoryAllocator.getArch("Unknown".toLowerCase()));
+  }
+
+  @Test
+  void getPath() {
+    String name = JNIMemoryAllocator.getName("LINUX".toUpperCase());
+    String arch = JNIMemoryAllocator.getArch("i386".toLowerCase());
+    Assertions.assertEquals(
+        "/native/memories/jni/linux-x86/memories.jnilib", JNIMemoryAllocator.getPath(name, arch));
+    Assertions.assertEquals(null, JNIMemoryAllocator.getPath(null, arch));
+    Assertions.assertEquals(null, JNIMemoryAllocator.getPath(name, null));
+  }
+
+  @Test
+  void loadLibrary() {
+    JNIMemoryAllocator.loadLibrary(null); // returns immediately
+    JNIMemoryAllocator.loadLibrary(""); // returns immediately
   }
 }

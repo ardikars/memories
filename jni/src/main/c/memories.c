@@ -18,3 +18,8 @@ void throwByName(JNIEnv *env, const char *name, const char *msg) {
     (*env)->DeleteLocalRef(env, cls);
   }
 }
+
+int main() {
+  printf("Memories");
+  return 0;
+}

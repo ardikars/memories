@@ -1,0 +1,117 @@
+# SPDX-FileCopyrightText: 2020 Memories Project
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Development
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['macos-10.15', 'ubuntu-16.04', 'ubuntu-18.04', 'ubuntu-20.04', 'windows-2016', 'windows-2019']
+        java: [1.8]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          java-package: jdk
+          architecture: x64
+
+      - name: actions/generate-jni-headers
+        run: |
+          export JAVA_HOME=$JAVA_HOME
+          export JAVA_HOME_JDK2=$JAVA_HOME
+          ./mvnw -t .mvn/toolchains.xml process-classes -Pgenerate-jni-headers
+        if: matrix.os == 'macos-10.15' || matrix.os == 'ubuntu-16.04' || matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
+
+      - name: actions/generate-jni-headers
+        shell: cmd
+        run: |
+          set JAVA_HOME=%JAVA_HOME%
+          set JAVA_HOME_JDK2=%JAVA_HOME%
+          mvnw.cmd -t .mvn\toolchains.xml process-classes -Pgenerate-jni-headers
+        if: matrix.os == 'windows-2016' || matrix.os == 'windows-2019'
+
+      - name: actions/setup-clang
+        run: |
+          sudo apt-get update && sudo apt-get install make clang gcc-multilib
+          clang --version
+        if: matrix.os == 'ubuntu-16.04' || matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
+
+      - name: actions/setup-clang
+        run: |
+          cc --version
+        if: matrix.os == 'macos-10.15'
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: make mingw-w64-i686-clang mingw-w64-x86_64-clang
+        if: matrix.os == 'windows-2016' || matrix.os == 'windows-2019'
+
+      - name: actions/build
+        run: |
+          cd jni/src/main/c && make
+          cd ../resources
+          shasum -a 256 -b native/memories/jni/linux-x86/memories.jnilib > native/memories/jni/linux-x86/memories.jnilib.sha256sum
+          shasum -a 256 -b native/memories/jni/linux-x86-64/memories.jnilib > native/memories/jni/linux-x86-64/memories.jnilib.sha256sum
+        if: matrix.os == 'ubuntu-16.04' || matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
+
+      - name: actions/build
+        run: |
+          cd jni/src/main/c && make x86_64
+          cd ../resources
+          shasum -a 256 native/memories/jni/darwin-x86-64/memories.jnilib > native/memories/jni/darwin-x86-64/memories.jnilib.sha256sum
+        if: matrix.os == 'macos-10.15'
+
+      - name: actions/build
+        shell: msys2 {0}
+        run: |
+          cd jni/src/main/c
+          make x86 CC=/mingw32/bin/clang
+          make x86_64 CC=/mingw64/bin/clang
+          cd ../resources
+          shasum -a 256 -b native/memories/jni/windows-x86/memories.jnilib > native/memories/jni/windows-x86/memories.jnilib.sha256sum
+          shasum -a 256 -b native/memories/jni/windows-x86-64/memories.jnilib > native/memories/jni/windows-x86-64/memories.jnilib.sha256sum
+        if: matrix.os == 'windows-2016' || matrix.os == 'windows-2019'
+
+      - name: actions/test
+        shell: cmd
+        run: |
+          set JAVA_HOME=%JAVA_HOME%
+          set JAVA_HOME_JDK2=%JAVA_HOME%
+          mvnw.cmd -t .mvn\toolchains.xml clean test -Pdevelopment
+        if: matrix.os == 'windows-2016' || matrix.os == 'windows-2019'
+
+      - name: actions/test
+        run: |
+          export JAVA_HOME=$JAVA_HOME
+          export JAVA_HOME_JDK2=$JAVA_HOME
+          ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment
+        if: matrix.os == 'macos-10.15' || matrix.os == 'ubuntu-16.04' || matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: memories.jnilib
+          path: jni/src/main/resources

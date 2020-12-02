@@ -1261,11 +1261,10 @@ public interface Memory {
     Memory unSlice();
   }
 
-
   /**
    * Byte order.
    *
-   * There is no enum yet on java 1.2
+   * <p>There is no enum yet on java 1.2
    *
    * @since 1.0.0
    */

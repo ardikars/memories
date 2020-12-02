@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// ignore unused variable
+/* ignore unused variable */
 #if !defined(UNUSED)
  #if defined(__GNUC__)
   #define UNUSED(x) UNUSED_ ## x __attribute__((unused))
@@ -17,7 +17,7 @@
 #define UNUSED_ENV(X) UNUSED(X)
 
 
-// memory allocator
+/* memory allocator */
 #if defined(__sun__) || defined(_AIX) || defined(__linux__)
 #  include <alloca.h>
 #endif
@@ -40,7 +40,7 @@
 #endif /* _WIN32 */
 
 
-// pointer/address converter
+/* pointer/address converter */
 #if defined(SOLARIS2) || defined(__GNUC__)
   #if defined(_WIN64)
     #define L2A(X) ((void *)(long long)(X))
@@ -66,7 +66,7 @@
 #endif
 
 
-// Throw an exception by name
+/* Throw an exception by name */
 #define EMemoryAccessExcetion "memories/spi/exception/MemoryAccessException"
 #define EMemoryLeakExcetion "memories/spi/exception/MemoryLeakException"
 

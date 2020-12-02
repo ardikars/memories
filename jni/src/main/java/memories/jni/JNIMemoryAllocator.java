@@ -6,15 +6,14 @@
 
 package memories.jni;
 
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
-import memories.spi.exception.MemoryLeakException;
-
 import java.io.*;
 import java.lang.ref.ReferenceQueue;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
+import memories.spi.exception.MemoryLeakException;
 
 public class JNIMemoryAllocator implements MemoryAllocator {
 
@@ -25,36 +24,75 @@ public class JNIMemoryAllocator implements MemoryAllocator {
   static final ReferenceQueue RQ = new ReferenceQueue();
 
   static {
-    try {
-      String path = "/native/memories/jni/linux-x86-64/memories.jnilib";
-      loadLibrary(path);
-    } catch (IOException e) {
-      //
-    }
+    final String osName = System.getProperty("os.name").toUpperCase().trim();
+    final String osArch = System.getProperty("os.arch").toLowerCase().trim();
+    String name = getName(osName);
+    String arch = getArch(osArch);
+    loadLibrary(getPath(name, arch));
   }
 
-  private static void loadLibrary(String path) throws IOException {
-    File temp = File.createTempFile("memories", ".jnilib");
-    temp.deleteOnExit();
-    final byte[] buffer = new byte[1024];
-    int readBytes;
-    InputStream is = null;
+  static String getName(String osName) {
+    if (osName.startsWith("LINUX")) {
+      return "linux";
+    } else if (osName.startsWith("MAC OS")) {
+      return "darwin";
+    } else if (osName.startsWith("WINDOWS")) {
+      return "windows";
+    }
+    return null;
+  }
+
+  static String getArch(String osArch) {
+    if ("i386".equals(osArch) || "i686".equals(osArch) || "i586".equals(osArch)) {
+      return "x86";
+    } else if ("x86_64".equals(osArch) || "amd64".equals(osArch) || "x64".equals(osArch)) {
+      return "x86-64";
+    }
+    return null;
+  }
+
+  static String getPath(String name, String arch) {
+    if (name != null && arch != null) {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("/native/memories/jni/");
+      buffer.append(name);
+      buffer.append('-');
+      buffer.append(arch);
+      buffer.append("/memories.jnilib");
+      return buffer.toString();
+    }
+    return null;
+  }
+
+  static void loadLibrary(String path) {
+    if (path == null || path.length() == 0) {
+      return;
+    }
     try {
-      is = JNIMemoryAllocator.class.getResourceAsStream(path);
-      checkNull(is, "Error while opening " + path + ".");
-      OutputStream os = null;
+      File temp = File.createTempFile("memories", ".jnilib");
+      temp.deleteOnExit();
+      final byte[] buffer = new byte[1024];
+      int readBytes;
+      InputStream is = null;
       try {
-        os = new FileOutputStream(temp);
-        checkNull(os, "Error while opening " + temp + ".");
-        while ((readBytes = is.read(buffer)) != -1) {
-          os.write(buffer, 0, readBytes);
+        is = JNIMemoryAllocator.class.getResourceAsStream(path);
+        checkNull(is, "Error while opening " + path + ".");
+        OutputStream os = null;
+        try {
+          os = new FileOutputStream(temp);
+          checkNull(os, "Error while opening " + temp + ".");
+          while ((readBytes = is.read(buffer)) != -1) {
+            os.write(buffer, 0, readBytes);
+          }
+        } finally {
+          closeOutputStream(os);
         }
-        System.load(temp.getAbsolutePath());
       } finally {
-        closeOutputStream(os);
+        closeInputStream(is);
       }
-    } finally {
-      closeInputStream(is);
+      System.load(temp.getAbsolutePath());
+    } catch (IOException e) {
+      //
     }
   }
 
@@ -110,9 +148,9 @@ public class JNIMemoryAllocator implements MemoryAllocator {
     return buffer;
   }
 
-  private static final class Unsafe {
+  static final class Unsafe {
     private Unsafe() {}
 
-    private static native long nativeMalloc(long size);
+    static native long nativeMalloc(long size);
   }
 }
