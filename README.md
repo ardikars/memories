@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2020 Memories
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# Pcap Project
+# Memories Project
 
 [![Quality Gate Status](http://10.14.204.76/web/sonarqube/api/project_badges/measure?project=memories%3Amemories&metric=alert_status)](http://10.14.204.76/web/sonarqube/dashboard?id=memories%3Amemories)
 [![Maintainability Rating](http://10.14.204.76/web/sonarqube/api/project_badges/measure?project=memories%3Amemories&metric=sqale_rating)](http://10.14.204.76/web/sonarqube/dashboard?id=memories%3Amemories)
@@ -20,7 +20,11 @@ SPDX-License-Identifier: Apache-2.0
 
 ## About this project
 
-Off-heap memory access.
+Off-heap (Native) memory access.
+
+```
+Proyek iseng ketika sedang gabut di @IconPlus (Dipindahkan dari: http://10.14.204.20/iconpln/memories).
+```
 
 
 ### License

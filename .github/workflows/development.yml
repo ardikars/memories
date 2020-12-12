@@ -82,7 +82,7 @@ jobs:
         run: |
           cd jni/src/main/c && make x86_64
           cd ../resources
-          shasum -a 256 native/memories/jni/darwin-x86-64/memories.jnilib > native/memories/jni/darwin-x86-64/memories.jnilib.sha256sum
+          shasum -a 256 -b native/memories/jni/darwin-x86-64/memories.jnilib > native/memories/jni/darwin-x86-64/memories.jnilib.sha256sum
         if: matrix.os == 'macos-10.15'
 
       - name: actions/build

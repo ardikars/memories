@@ -115,9 +115,11 @@ public class JNIMemoryAllocator implements MemoryAllocator {
   }
 
   static void checkLeak(JNIMemory.Reference ref, boolean enabled) {
-    if (ref.address.get() != 0L) {
-      JNIMemory.Unsafe.nativeFree(
-          ref.address.getAndSet(0L)); // force deallocate memory and set address to '0'.
+    long refAddr = ref.address;
+    if (refAddr != 0L) {
+      // force deallocate memory and set address to '0'.
+      JNIMemory.Unsafe.nativeFree(refAddr);
+      ref.address = 0L;
       if (enabled) {
         StringBuffer stackTraceBuffer = new StringBuffer();
         for (int i = ref.stackTraceElements.length - 1; i >= 0; i--) {
@@ -131,7 +133,7 @@ public class JNIMemoryAllocator implements MemoryAllocator {
   }
 
   public Memory allocate(long size) {
-    return allocate(size, JNIMemory.NATIVE);
+    return allocate(size, Memory.ByteOrder.BIG_ENDIAN);
   }
 
   public Memory allocate(long size, Memory.ByteOrder byteOrder) {
