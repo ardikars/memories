@@ -49,45 +49,27 @@ JNIEXPORT jlong JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeRealloc(JN
   }
 }
 
-JNIEXPORT jbyte JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeGetByte(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address) {
-  jbyte res = 0;
-  MEMCPY(env, &res, L2A(j_address), sizeof(res));
-  return res;
-}
+#define GET(JTYPE, NTYPE)  \
+JNIEXPORT NTYPE JNICALL \
+Java_memories_jni_JNIMemory_00024Unsafe_nativeGet##JTYPE(JNIEnv* env, jobject self, jlong address) \
+{ NTYPE tmp; MEMCPY(env, &tmp, L2A(address), sizeof(tmp)); return tmp; }
 
-JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeSetByte(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address, jbyte j_value) {
-  MEMCPY(env, L2A(j_address), &j_value, sizeof(j_value));
-}
+#define SET(JTYPE, NTYPE) \
+JNIEXPORT void JNICALL \
+Java_memories_jni_JNIMemory_00024Unsafe_nativeSet##JTYPE(JNIEnv *env, jobject self, jlong address, NTYPE value) \
+{ MEMCPY(env, L2A(address), &value, sizeof(value)); }
 
-JNIEXPORT jshort JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeGetShort(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address) {
-  jshort res = 0;
-  MEMCPY(env, &res, L2A(j_address), sizeof(res));
-  return res;
-}
 
-JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeSetShort(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address, jshort j_value) {
-    MEMCPY(env, L2A(j_address), &j_value, sizeof(j_value));
-}
+#define UNSAFE(J, N) GET(J, N) SET(J, N)
 
-JNIEXPORT jint JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeGetInt(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address) {
-  jint res = 0;
-  MEMCPY(env, &res, L2A(j_address), sizeof(res));
-  return res;
-}
-
-JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeSetInt(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address, jint j_value) {
-  MEMCPY(env, L2A(j_address), &j_value, sizeof(j_value));
-}
-
-JNIEXPORT jlong JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeGetLong(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address) {
-  jlong res = 0;
-  MEMCPY(env, &res, L2A(j_address), sizeof(res));
-  return res;
-}
-
-JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeSetLong(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_address, jlong j_value) {
-  MEMCPY(env, L2A(j_address), &j_value, sizeof(j_value));
-}
+UNSAFE(Byte, jbyte);
+UNSAFE(Char, jchar);
+UNSAFE(Boolean, jboolean);
+UNSAFE(Short, jshort);
+UNSAFE(Int, jint);
+UNSAFE(Long, jlong);
+UNSAFE(Float, jfloat);
+UNSAFE(Double, jdouble);
 
 JNIEXPORT void JNICALL Java_memories_jni_JNIMemory_00024Unsafe_nativeGetBytes(JNIEnv *env, jclass UNUSED(j_cls), jlong j_address, jbyteArray j_dst, jlong j_dst_idx, jlong j_dst_len) {
   (*env)->SetByteArrayRegion(env, j_dst, j_dst_idx, j_dst_len, L2A(j_address));

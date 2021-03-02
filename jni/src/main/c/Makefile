@@ -4,7 +4,7 @@
 
 RM?=rm
 
-LIBRARY_FLAGS = -D HAVE_MEMORIES_H -O -std=c90 -Wall
+LIBRARY_FLAGS = -D HAVE_MEMORIES_H -O -std=c89 -Wall
 
 ifeq ($(OS),Windows_NT)
 	LIBRARY_FLAGS += -shared -I "$(JAVA_HOME)/include" -I "$(JAVA_HOME)/include/win32" -Wl,--export-all-symbols -Wl,--add-stdcall-alias
