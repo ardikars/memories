@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2020 Memories Project
+# SPDX-FileCopyrightText: 2020-2021 Memories Project
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -37,21 +37,6 @@ jobs:
           java-version: ${{ matrix.java }}
           java-package: jdk
           architecture: x64
-
-      - name: actions/generate-jni-headers
-        run: |
-          export JAVA_HOME=$JAVA_HOME
-          export JAVA_HOME_JDK2=$JAVA_HOME
-          ./mvnw -t .mvn/toolchains.xml process-classes -Pgenerate-jni-headers
-        if: matrix.os == 'macos-10.15' || matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
-
-      - name: actions/generate-jni-headers
-        shell: cmd
-        run: |
-          set JAVA_HOME=%JAVA_HOME%
-          set JAVA_HOME_JDK2=%JAVA_HOME%
-          mvnw.cmd -t .mvn\toolchains.xml process-classes -Pgenerate-jni-headers
-        if: matrix.os == 'windows-2016' || matrix.os == 'windows-2019'
 
       - name: actions/setup-clang
         run: |

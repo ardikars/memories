@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2020 Memories Project
+ * SPDX-FileCopyrightText: 2020-2021 Memories Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */

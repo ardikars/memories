@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2020 Memories Project
+ * SPDX-FileCopyrightText: 2020-2021 Memories Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package memories.benchmark;
 
-import memories.jni.JNIMemoryAllocator;
+import memories.jdk2.JDK2MemoryAllocator;
 import memories.spi.Memory;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -151,7 +151,7 @@ public class SetAndGet {
 
     @Setup(Level.Invocation)
     public void setUp() {
-      jniMemory = new JNIMemoryAllocator().allocate(8);
+      jniMemory = new JDK2MemoryAllocator().allocate(8);
     }
   }
 }

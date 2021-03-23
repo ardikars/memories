@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright 2020 Memories Project
+Copyright 2020-2021 Memories Project
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -23,12 +23,12 @@ SPDX-License-Identifier: Apache-2.0
 
     <dependencies>
         <dependency>
-            <groupId>${groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>${groupId}</groupId>
-            <artifactId>jni</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jdk2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
