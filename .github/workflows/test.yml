@@ -1,0 +1,66 @@
+# SPDX-FileCopyrightText: 2020-2021 Memories Project
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Test
+
+on:
+  push:
+    branches:
+      - test
+  pull_request:
+    branches:
+      - test
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - uses: docker://multiarch/alpine:x86-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:i386-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:amd64-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:x86_64-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:armv7-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:armhf-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:arm64-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:aarch64-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+
+      - uses: docker://multiarch/alpine:ppc64le-edge
+        with:
+          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
