@@ -50,7 +50,7 @@ SPDX-License-Identifier: Apache-2.0
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>1.7</java.version>
         <java.jdk2.version>1.2</java.jdk2.version>
         <jdk.version>${java.version}</jdk.version>
 

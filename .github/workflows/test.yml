@@ -28,53 +28,44 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
-#
+
       - uses: docker://multiarch/alpine:x86-edge
         with:
-          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && apk add build-base && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.. && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
 
-#      - uses: docker://multiarch/alpine:i386-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
-#
-#      - uses: docker://multiarch/alpine:amd64-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
-#
-#      - uses: docker://multiarch/alpine:x86_64-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
-#
-#      - uses: docker://multiarch/alpine:armv7-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
-#
-#      - uses: docker://multiarch/alpine:armhf-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
-#
-#      - uses: docker://multiarch/alpine:arm64-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
-#
-#      - uses: docker://multiarch/alpine:aarch64-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
-#
-#      - uses: docker://multiarch/alpine:ppc64le-edge
-#        with:
-#          args: 'sh -c "apk update && apk add openjdk8=8.282.08-r0 && export JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+      - uses: docker://multiarch/alpine:i386-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
 
-# multiarch/debian-debootstrap:amd64-buster-slim
-# multiarch/debian-debootstrap:arm64-buster-slim
-# multiarch/debian-debootstrap:i386-buster-slim
-# multiarch/debian-debootstrap:armhf-buster-slim
-# multiarch/debian-debootstrap:armel-buster-slim
-# multiarch/debian-debootstrap:misp-buster-slim
-# multiarch/debian-debootstrap:mispel-buster-slim
-# multiarch/debian-debootstrap:misp64el-buster-slim
-# multiarch/debian-debootstrap:ppc64el-buster-slim
+      - uses: docker://multiarch/alpine:amd64-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
 
-#      - uses: docker://multiarch/debian-debootstrap:arm64-buster-slim
-#        with:
-#          args: 'sh -c "apt-get update && apt-get install gcc make openjdk-8-jdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.. && ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment"'
+      - uses: docker://multiarch/alpine:x86_64-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
+
+      - uses: docker://multiarch/alpine:armv7-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
+
+      - uses: docker://multiarch/alpine:armhf-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
+
+      - uses: docker://multiarch/alpine:arm64-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
+
+      - uses: docker://multiarch/alpine:aarch64-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
+
+      - uses: docker://multiarch/alpine:ppc64le-edge
+        with:
+          args: 'sh -c "uname -m && apk update && apk add openjdk7=7.281.2.6.24-r0 build-base && export JAVA_HOME=/usr/lib/jvm/java-1.7-openjdk && export JAVA_HOME_JDK2=$JAVA_HOME && cd jdk2/src/main/c && make && cd ../../../.."'
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: memories.jnilib
+          path: jdk2/src/main/resources
