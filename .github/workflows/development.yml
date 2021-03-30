@@ -57,7 +57,7 @@ jobs:
 
       - name: actions/build
         run: |
-          cd jni/src/main/c && make
+          cd jdk2/src/main/c && make
           cd ../resources
           shasum -a 256 -b native/memories/jni/linux-x86/memories.jnilib > native/memories/jni/linux-x86/memories.jnilib.sha256sum
           shasum -a 256 -b native/memories/jni/linux-x86-64/memories.jnilib > native/memories/jni/linux-x86-64/memories.jnilib.sha256sum
@@ -65,7 +65,7 @@ jobs:
 
       - name: actions/build
         run: |
-          cd jni/src/main/c && make x86_64
+          cd jdk2/src/main/c && make x86_64
           cd ../resources
           shasum -a 256 -b native/memories/jni/darwin-x86-64/memories.jnilib > native/memories/jni/darwin-x86-64/memories.jnilib.sha256sum
         if: matrix.os == 'macos-10.15'
@@ -73,7 +73,7 @@ jobs:
       - name: actions/build
         shell: msys2 {0}
         run: |
-          cd jni/src/main/c
+          cd jdk2/src/main/c
           make x86 CC=/mingw32/bin/clang
           make x86_64 CC=/mingw64/bin/clang
           cd ../resources
@@ -99,4 +99,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: memories.jnilib
-          path: jni/src/main/resources
+          path: jdk2/src/main/resources
