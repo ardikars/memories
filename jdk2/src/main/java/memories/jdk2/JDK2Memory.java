@@ -6,12 +6,11 @@
 
 package memories.jdk2;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
 import memories.spi.exception.MemoryAccessException;
-
-import java.lang.ref.PhantomReference;
-import java.lang.ref.ReferenceQueue;
 
 class JDK2Memory implements Memory {
 
@@ -35,7 +34,7 @@ class JDK2Memory implements Memory {
   protected long markedWriterIndex;
 
   private boolean bigEndian;
-  private Reference reference;
+  private PhantomCleaner phantomCleaner;
 
   JDK2Memory(long address, long capacity, ByteOrder byteOrder, MemoryAllocator allocator) {
     this.address = address;
@@ -85,7 +84,7 @@ class JDK2Memory implements Memory {
     long oldAddress = address;
     long newAddress =
         JDK2MemoryAllocator.NativeMemoryAllocator.nativeRealloc(oldAddress, newCapacity);
-    this.reference.address = newAddress;
+    this.phantomCleaner.address = newAddress;
     this.address = newAddress;
     this.capacity = newCapacity;
     return this;
@@ -686,7 +685,7 @@ class JDK2Memory implements Memory {
               + capacity
               + "))");
     }
-    if (reference.address == 0L) {
+    if (phantomCleaner.address == 0L) {
       throw new MemoryAccessException("Accessing closed memory.");
     }
   }
@@ -1011,9 +1010,9 @@ class JDK2Memory implements Memory {
 
   // @Override
   public boolean release() {
-    if (reference.address > 0) {
+    if (phantomCleaner.address > 0) {
       JDK2MemoryAllocator.NativeMemoryAllocator.nativeFree(address);
-      reference.address = 0L;
+      phantomCleaner.address = 0L;
       return true;
     } else {
       return false;
@@ -1091,14 +1090,18 @@ class JDK2Memory implements Memory {
     }
   }
 
-  static final class Reference extends PhantomReference {
+  static final class PhantomCleaner extends PhantomReference {
 
     long address;
 
-    Reference(long rawAddr, JDK2Memory referent, ReferenceQueue q) {
+    PhantomCleaner(long rawAddr, JDK2Memory referent, ReferenceQueue q) {
       super(referent, q);
       this.address = rawAddr;
-      referent.reference = this;
+      referent.phantomCleaner = this;
+    }
+
+    public int hashCode() {
+      return (int) (31 * address);
     }
   }
 }

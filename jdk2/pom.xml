@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>memories</artifactId>
-        <groupId>memories</groupId>
+        <groupId>com.github.ardikars</groupId>
         <version>0.1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -24,7 +24,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <dependencies>
         <dependency>
-            <groupId>memories</groupId>
+            <groupId>com.github.ardikars</groupId>
             <artifactId>spi</artifactId>
         </dependency>
     </dependencies>
@@ -68,7 +68,7 @@ SPDX-License-Identifier: Apache-2.0
                                             <!--suppress UnresolvedMavenProperty -->
                                             <matches pattern="(i[3456]86|pentium)" string="${build.os.arch}"/>
                                         </condition>
-                                        <condition property="jre.arch" value="x86-64">
+                                        <condition property="jre.arch" value="x86_64">
                                             <!--suppress UnresolvedMavenProperty -->
                                             <matches pattern="(x86_64|amd64|em64t)" string="${build.os.arch}"/>
                                         </condition>

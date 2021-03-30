@@ -6,14 +6,17 @@
 
 package memories.jdk2;
 
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.ReferenceQueue;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
 
 public class JDK2MemoryAllocator implements MemoryAllocator {
 
@@ -43,7 +46,7 @@ public class JDK2MemoryAllocator implements MemoryAllocator {
     if ("i386".equals(osArch) || "i686".equals(osArch) || "i586".equals(osArch)) {
       return "x86";
     } else if ("x86_64".equals(osArch) || "amd64".equals(osArch) || "x64".equals(osArch)) {
-      return "x86-64";
+      return "x86_64";
     }
     return null;
   }
@@ -127,16 +130,17 @@ public class JDK2MemoryAllocator implements MemoryAllocator {
     }
 
     JDK2Memory buffer = new JDK2Memory(address, size, byteOrder, this);
-    JDK2Memory.Reference bufRef = new JDK2Memory.Reference(address, buffer, RQ);
-    REFS.add(bufRef);
+    JDK2Memory.PhantomCleaner cleaner = new JDK2Memory.PhantomCleaner(address, buffer, RQ);
+    REFS.add(cleaner);
 
-    // cleanup native memory wrapped in garbage collected object.
-    JDK2Memory.Reference ref;
-    while ((ref = (JDK2Memory.Reference) RQ.poll()) != null) {
-      if (ref.address != 0L) {
+    // cleanup native memory when garbage collected.
+    JDK2Memory.PhantomCleaner cleaned;
+    while ((cleaned = (JDK2Memory.PhantomCleaner) RQ.poll()) != null) {
+      if (cleaned.address != 0L) {
         // force deallocate memory and set address to '0'.
-        NativeMemoryAllocator.nativeFree(ref.address);
-        ref.address = 0L;
+        NativeMemoryAllocator.nativeFree(cleaned.address);
+        REFS.remove(cleaned);
+        cleaned.address = 0L;
       }
     }
     return buffer;

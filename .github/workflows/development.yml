@@ -60,14 +60,14 @@ jobs:
           cd jdk2/src/main/c && make
           cd ../resources
           shasum -a 256 -b native/memories/jni/linux-x86/memories.jnilib > native/memories/jni/linux-x86/memories.jnilib.sha256sum
-          shasum -a 256 -b native/memories/jni/linux-x86-64/memories.jnilib > native/memories/jni/linux-x86-64/memories.jnilib.sha256sum
+          shasum -a 256 -b native/memories/jni/linux-x86_64/memories.jnilib > native/memories/jni/linux-x86_64/memories.jnilib.sha256sum
         if: matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
 
       - name: actions/build
         run: |
           cd jdk2/src/main/c && make x86_64
           cd ../resources
-          shasum -a 256 -b native/memories/jni/darwin-x86-64/memories.jnilib > native/memories/jni/darwin-x86-64/memories.jnilib.sha256sum
+          shasum -a 256 -b native/memories/jni/darwin-x86_64/memories.jnilib > native/memories/jni/darwin-x86_64/memories.jnilib.sha256sum
         if: matrix.os == 'macos-10.15'
 
       - name: actions/build
@@ -78,7 +78,7 @@ jobs:
           make x86_64 CC=/mingw64/bin/clang
           cd ../resources
           shasum -a 256 -b native/memories/jni/windows-x86/memories.jnilib > native/memories/jni/windows-x86/memories.jnilib.sha256sum
-          shasum -a 256 -b native/memories/jni/windows-x86-64/memories.jnilib > native/memories/jni/windows-x86-64/memories.jnilib.sha256sum
+          shasum -a 256 -b native/memories/jni/windows-x86_64/memories.jnilib > native/memories/jni/windows-x86_64/memories.jnilib.sha256sum
         if: matrix.os == 'windows-2016' || matrix.os == 'windows-2019'
 
       - name: actions/test

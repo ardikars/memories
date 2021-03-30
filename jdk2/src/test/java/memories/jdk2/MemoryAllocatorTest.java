@@ -54,7 +54,7 @@ public class MemoryAllocatorTest {
 
   @Test
   void closeInputStream() {
-    String path = "/native/memories/jni/linux-x86-64/memories.jnilib";
+    String path = "/native/memories/jni/linux-x86_64/memories.jnilib";
     InputStream is = JDK2MemoryAllocator.class.getResourceAsStream(path);
     try {
       JDK2MemoryAllocator.closeInputStream(null);
@@ -87,9 +87,9 @@ public class MemoryAllocatorTest {
     Assertions.assertEquals("x86", JDK2MemoryAllocator.getArch("i386".toLowerCase()));
     Assertions.assertEquals("x86", JDK2MemoryAllocator.getArch("i686".toLowerCase()));
     Assertions.assertEquals("x86", JDK2MemoryAllocator.getArch("i586".toLowerCase()));
-    Assertions.assertEquals("x86-64", JDK2MemoryAllocator.getArch("x86_64".toLowerCase()));
-    Assertions.assertEquals("x86-64", JDK2MemoryAllocator.getArch("amd64".toLowerCase()));
-    Assertions.assertEquals("x86-64", JDK2MemoryAllocator.getArch("x64".toLowerCase()));
+    Assertions.assertEquals("x86_64", JDK2MemoryAllocator.getArch("x86_64".toLowerCase()));
+    Assertions.assertEquals("x86_64", JDK2MemoryAllocator.getArch("amd64".toLowerCase()));
+    Assertions.assertEquals("x86_64", JDK2MemoryAllocator.getArch("x64".toLowerCase()));
     Assertions.assertEquals(null, JDK2MemoryAllocator.getArch("Unknown".toLowerCase()));
   }
 

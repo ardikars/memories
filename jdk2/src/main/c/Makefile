@@ -28,7 +28,7 @@ LIBRARY_FLAGS += -I "include"
 all: x86_64 x86
 
 x86_64:
-	$(CC) ${LIBRARY_FLAGS} -m64 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86-64/memories.jnilib memories.c memory.c memory_allocator.c
+	$(CC) ${LIBRARY_FLAGS} -m64 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86_64/memories.jnilib memories.c memory.c memory_allocator.c
 
 x86:
 	$(CC) ${LIBRARY_FLAGS} -m32 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86/memories.jnilib memories.c memory.c memory_allocator.c
