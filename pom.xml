@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
     <modules>
         <module>spi</module>
         <module>jdk2</module>
+        <module>jdk17</module>
         <module>benchmark</module>
     </modules>
 
@@ -50,8 +51,9 @@ SPDX-License-Identifier: Apache-2.0
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>16</java.version>
         <java.jdk2.version>1.2</java.jdk2.version>
+        <java.jdk17.version>16</java.jdk17.version>
         <jdk.version>${java.version}</jdk.version>
 
         <jmh.version>1.26</jmh.version>
