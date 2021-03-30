@@ -6,7 +6,7 @@
 
 package memories.spi.exception;
 
-public final class MemoryAccessException extends RuntimeException {
+public class MemoryAccessException extends RuntimeException {
   public MemoryAccessException(String message) {
     super(message);
   }

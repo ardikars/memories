@@ -14,7 +14,7 @@ package memories.spi;
 public interface MemoryAllocator {
 
   /**
-   * Allocate new block of memory with given size and native byte order.
+   * Allocate new uninitialized block of memory with given size and native byte order.
    *
    * @param size size of memory block.
    * @return returns new {@link Memory} block.
@@ -23,7 +23,7 @@ public interface MemoryAllocator {
   Memory allocate(long size);
 
   /**
-   * Allocate new block of memory with given size and specific byte order.
+   * Allocate new uninitialized block of memory with given size and specific byte order.
    *
    * @param size size of memory block.
    * @param byteOrder byte order.
@@ -33,7 +33,8 @@ public interface MemoryAllocator {
   Memory allocate(long size, Memory.ByteOrder byteOrder);
 
   /**
-   * Allocate new block of memory with given size, byte order, and zeroing param.
+   * Allocate new block of memory with given size, byte order, and zeroing param ({@code true}
+   * initialize buffer with zero value, {@code false} uninitialize buffer).
    *
    * @param size size of memory bbock.
    * @param byteOrder byte order.

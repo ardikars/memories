@@ -119,7 +119,6 @@ public class JDK2MemoryAllocator implements MemoryAllocator {
     return allocate(size, byteOrder, false);
   }
 
-  @Override
   public Memory allocate(long size, Memory.ByteOrder byteOrder, boolean clear) {
     long address = NativeMemoryAllocator.nativeMalloc(size);
 
