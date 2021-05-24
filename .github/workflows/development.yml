@@ -36,47 +36,47 @@ jobs:
 
       - uses: docker://multiarch/alpine:x86-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:i386-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:amd64-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:x86_64-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:armv7-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:armhf-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:arm64-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:aarch64-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: docker://multiarch/alpine:ppc64le-edge
         with:
-          args: 'sh -c "uname -m && apk update && apk add build-base && cd jdk2/src/main/c && make"'
+          args: 'sh -c "uname -m && apk update && apk add build-base && cd api/src/main/c && make"'
         if: matrix.os == 'ubuntu-20.04'
 
       - uses: msys2/setup-msys2@v2
@@ -88,17 +88,17 @@ jobs:
       - name: msys2/build
         shell: msys2 {0}
         run: |
-          cd jdk2/src/main/c
+          cd api/src/main/c
           make win32 CC=/mingw32/bin/clang
           make win64 CC=/mingw64/bin/clang
         if: matrix.os == 'windows-2016' || matrix.os == 'windows-2019'
 
       - name: actions/build
         run: |
-          cd jdk2/src/main/c && make
+          cd api/src/main/c && make
         if: matrix.os == 'macos-10.15'
 
       - uses: actions/upload-artifact@v2
         with:
           name: memories.jnilib
-          path: jdk2/src/main/resources
+          path: api/src/main/resources

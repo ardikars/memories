@@ -28,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jdk2</artifactId>
+            <artifactId>api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>

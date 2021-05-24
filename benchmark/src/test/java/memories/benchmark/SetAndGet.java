@@ -6,7 +6,7 @@
 
 package memories.benchmark;
 
-import memories.jdk2.JDK2MemoryAllocator;
+import memories.api.MemoryAllocatorApi;
 import memories.spi.Memory;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
@@ -151,7 +151,7 @@ public class SetAndGet {
 
     @Setup(Level.Invocation)
     public void setUp() {
-      jniMemory = new JDK2MemoryAllocator().allocate(8);
+      jniMemory = new MemoryAllocatorApi().allocate(8);
     }
   }
 }
