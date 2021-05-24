@@ -6,6 +6,8 @@
 
 package memories.spi;
 
+import memories.spi.annotation.Restricted;
+
 /**
  * Off-heap memory allocator.
  *
@@ -38,9 +40,51 @@ public interface MemoryAllocator {
    *
    * @param size size of memory bbock.
    * @param byteOrder byte order.
-   * @param clear zeroing the bugger.
+   * @param clear zeroing the buffer.
    * @return returns new {@link Memory} block.
    * @since 1.0.0
    */
   Memory allocate(long size, Memory.ByteOrder byteOrder, boolean clear);
+
+  /**
+   * Wrap raw memory address without cleaner.
+   *
+   * @param memoryAddress memory address.
+   * @param size block size.
+   * @return returns wrapped memoryAddress.
+   * @throws IllegalAccessException restricted method call.
+   * @since 1.0.0
+   */
+  @Restricted
+  Memory of(long memoryAddress, long size) throws IllegalAccessException;
+
+  /**
+   * Wrap raw memory address without cleaner.
+   *
+   * @param memoryAddress memory address.
+   * @param size block size.
+   * @param byteOrder byte order.
+   * @return returns wrapped memoryAddress.
+   * @throws IllegalAccessException restricted method call.
+   * @since 1.0.0
+   */
+  @Restricted
+  Memory of(long memoryAddress, long size, Memory.ByteOrder byteOrder)
+      throws IllegalAccessException;
+
+  /**
+   * Wrap raw memory address.
+   *
+   * @param memoryAddress memory address.
+   * @param size block size.
+   * @param byteOrder byte order.
+   * @param autoClean {@code true} for auto release the buffer if this object is no longer in use,
+   *     {@code false} otherwise (without cleaner).
+   * @throws IllegalAccessException restricted method call.
+   * @return returns wrapped memoryAddress.
+   * @since 1.0.0
+   */
+  @Restricted
+  Memory of(long memoryAddress, long size, Memory.ByteOrder byteOrder, boolean autoClean)
+      throws IllegalAccessException;
 }

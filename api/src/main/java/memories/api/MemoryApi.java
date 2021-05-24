@@ -26,6 +26,7 @@ class MemoryApi implements Memory {
   }
 
   private final MemoryAllocator allocator;
+  protected Thread ownerThread;
   protected long address;
   protected long capacity;
   protected long readerIndex;
@@ -36,7 +37,13 @@ class MemoryApi implements Memory {
   private boolean bigEndian;
   private PhantomCleaner phantomCleaner;
 
-  MemoryApi(long address, long capacity, ByteOrder byteOrder, MemoryAllocator allocator) {
+  MemoryApi(
+      Thread ownerThread,
+      long address,
+      long capacity,
+      ByteOrder byteOrder,
+      MemoryAllocator allocator) {
+    this.ownerThread = ownerThread;
     this.address = address;
     this.capacity = capacity;
     this.allocator = allocator;
@@ -627,6 +634,29 @@ class MemoryApi implements Memory {
     return this;
   }
 
+  @Override
+  public long memoryAddress() throws IllegalAccessException {
+    if (MemoryAllocatorApi.RESTRICTED_LEVEL > 0) {
+      if (MemoryAllocatorApi.RESTRICTED_LEVEL > 1) {
+        System.err.println("Calling restricted method MemoryAllocator#of(..).");
+      }
+      if (address < 0L) {
+        throw new IllegalStateException("Memory address must be positive value.");
+      }
+      if (address == 0L) {
+        throw new IllegalStateException("Memory buffer already closed.");
+      }
+      return address;
+    } else {
+      throw new IllegalAccessException(MemoryAllocatorApi.RESTRICTED_MESSAGE);
+    }
+  }
+
+  @Override
+  public Thread ownerThread() {
+    return ownerThread;
+  }
+
   // @Override
   public ByteOrder byteOrder() {
     return bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
@@ -994,7 +1024,7 @@ class MemoryApi implements Memory {
 
   // @Override
   public Memory duplicate() {
-    MemoryApi memory = new MemoryApi(address, capacity, byteOrder(), allocator);
+    MemoryApi memory = new MemoryApi(ownerThread, address, capacity, byteOrder(), allocator);
     memory.readerIndex = readerIndex;
     memory.writerIndex = writerIndex;
     memory.markedReaderIndex = markedReaderIndex;
@@ -1012,6 +1042,7 @@ class MemoryApi implements Memory {
   public boolean release() {
     if (phantomCleaner.address > 0) {
       MemoryAllocatorApi.NativeMemoryAllocator.nativeFree(address);
+      address = 0L;
       phantomCleaner.address = 0L;
       return true;
     } else {
@@ -1073,7 +1104,7 @@ class MemoryApi implements Memory {
     private final MemoryApi prev;
 
     SlicedMemoryApi(MemoryApi prev, long index, long length) {
-      super(prev.address + index, length, prev.byteOrder(), prev.allocator);
+      super(prev.ownerThread, prev.address + index, length, prev.byteOrder(), prev.allocator);
       this.prev = prev;
       this.readerIndex = prev.readerIndex - index < 0 ? 0 : prev.readerIndex - index;
       this.writerIndex = prev.writerIndex - index < 0 ? 0 : prev.writerIndex - index;

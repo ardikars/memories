@@ -6,6 +6,8 @@
 
 package memories.spi;
 
+import memories.spi.annotation.Restricted;
+
 /**
  * Used to wrap low-level memory address.
  *
@@ -1165,6 +1167,24 @@ public interface Memory {
    * @since 1.0.0
    */
   Memory writeBytes(byte[] src, long srcIndex, long length);
+
+  /**
+   * Get first byte memory address of this buffer.
+   *
+   * @return returns first byte memory address of this buffer.
+   * @throws IllegalAccessException restricted method call.
+   * @since 1.0.0
+   */
+  @Restricted
+  long memoryAddress() throws IllegalAccessException;
+
+  /**
+   * Get the Thread owning this {@link Memory}.
+   *
+   * @return returns the Thread owning this {@link Memory}.
+   * @since 1.0.0
+   */
+  Thread ownerThread();
 
   /**
    * Returns a copy of this buffer's readable bytes. Modifying the content of the returned buffer or
