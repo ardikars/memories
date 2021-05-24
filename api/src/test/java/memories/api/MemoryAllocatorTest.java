@@ -5,6 +5,8 @@
 package memories.api;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
 import org.junit.jupiter.api.Assertions;
@@ -107,5 +109,15 @@ public class MemoryAllocatorTest {
   void loadLibrary() {
     MemoryAllocatorApi.loadLibrary(null); // returns immediately
     MemoryAllocatorApi.loadLibrary(""); // returns immediately
+  }
+
+  @Test
+  void wrapDirectByteBuffer() {
+    ByteBuffer buf = ByteBuffer.allocateDirect(8);
+    try {
+      Memory memory = allocator.of(buf);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
   }
 }
