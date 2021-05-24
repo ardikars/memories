@@ -20,6 +20,8 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   static final Set REFS = Collections.synchronizedSet(new HashSet());
   static final ReferenceQueue RQ = new ReferenceQueue();
 
+  static final boolean HAS_BYTE_BUFFER;
+
   static final Memory.ByteOrder NATIVE_BYTE_ORDER;
 
   static final int RESTRICTED_LEVEL;
@@ -47,6 +49,14 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     } else {
       RESTRICTED_LEVEL = 0;
     }
+    boolean hasByteBuffer;
+    try {
+      Class.forName("java.nio.ByteBuffer");
+      hasByteBuffer = true;
+    } catch (ClassNotFoundException e) {
+      hasByteBuffer = false;
+    }
+    HAS_BYTE_BUFFER = hasByteBuffer;
   }
 
   static Memory.ByteOrder byteOrder(boolean isBE) {
@@ -140,6 +150,36 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     }
   }
 
+  Memory wrap(
+      long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder, boolean autoClean) {
+    if (memoryAddress < 0L) {
+      throw new IllegalStateException("Memory address must be positive value.");
+    }
+    if (memoryAddress == 0L) {
+      throw new IllegalStateException("Memory buffer already closed.");
+    }
+    Thread ownerThread = Thread.currentThread();
+
+    MemoryApi newBuf = new MemoryApi(ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
+
+    if (autoClean) {
+      MemoryApi.PhantomCleaner cleaner = new MemoryApi.PhantomCleaner(memoryAddress, newBuf, RQ);
+      REFS.add(cleaner);
+    }
+
+    // cleanup native memory when garbage collected.
+    MemoryApi.PhantomCleaner cleaned;
+    while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
+      if (cleaned.address != 0L) {
+        // force deallocate memory and set address to '0'.
+        NativeMemoryAllocator.nativeFree(cleaned.address);
+        REFS.remove(cleaned);
+        cleaned.address = 0L;
+      }
+    }
+    return newBuf;
+  }
+
   public Memory allocate(long size) {
     return allocate(size, Memory.ByteOrder.BIG_ENDIAN);
   }
@@ -174,18 +214,19 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   }
 
   @Override
-  public Memory of(long memoryAddress, long size) throws IllegalAccessException {
-    return of(memoryAddress, size, NATIVE_BYTE_ORDER, false);
+  public Memory of(long memoryAddress, long memoryCapacity) throws IllegalAccessException {
+    return of(memoryAddress, memoryCapacity, NATIVE_BYTE_ORDER, false);
   }
 
   @Override
-  public Memory of(long memoryAddress, long size, Memory.ByteOrder byteOrder)
+  public Memory of(long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder)
       throws IllegalAccessException {
-    return of(memoryAddress, size, byteOrder, false);
+    return of(memoryAddress, memoryCapacity, byteOrder, false);
   }
 
   @Override
-  public Memory of(long memoryAddress, long size, Memory.ByteOrder byteOrder, boolean autoClean)
+  public Memory of(
+      long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder, boolean autoClean)
       throws IllegalAccessException {
     if (RESTRICTED_LEVEL > 0) {
       if (RESTRICTED_LEVEL > 1) {
@@ -197,27 +238,35 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       if (memoryAddress == 0L) {
         throw new IllegalStateException("Memory buffer already closed.");
       }
+      return wrap(memoryAddress, memoryCapacity, byteOrder, autoClean);
+    } else {
+      throw new IllegalAccessException(RESTRICTED_MESSAGE);
+    }
+  }
 
-      Thread ownerThread = Thread.currentThread();
+  @Override
+  public Memory of(Object buffer) throws IllegalAccessException {
+    return of(buffer, NATIVE_BYTE_ORDER, false);
+  }
 
-      MemoryApi buffer = new MemoryApi(ownerThread, memoryAddress, size, byteOrder, this);
+  @Override
+  public Memory of(Object buffer, Memory.ByteOrder byteOrder) throws IllegalAccessException {
+    return of(buffer, byteOrder, false);
+  }
 
-      if (autoClean) {
-        MemoryApi.PhantomCleaner cleaner = new MemoryApi.PhantomCleaner(memoryAddress, buffer, RQ);
-        REFS.add(cleaner);
+  @Override
+  public Memory of(Object buffer, Memory.ByteOrder byteOrder, boolean autoClean)
+      throws IllegalAccessException {
+    if (RESTRICTED_LEVEL > 0) {
+      if (RESTRICTED_LEVEL > 1) {
+        System.err.println("Calling restricted method MemoryAllocator#of(..).");
       }
-
-      // cleanup native memory when garbage collected.
-      MemoryApi.PhantomCleaner cleaned;
-      while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
-        if (cleaned.address != 0L) {
-          // force deallocate memory and set address to '0'.
-          NativeMemoryAllocator.nativeFree(cleaned.address);
-          REFS.remove(cleaned);
-          cleaned.address = 0L;
-        }
+      if (buffer != null && buffer.getClass().getName().equals("java.nio.DirectByteBuffer")) {
+        long memoryAddress = NativeMemoryAllocator.nativeGetDirectBufferAddress(buffer);
+        long memoryCapacity = NativeMemoryAllocator.nativeGetDirectBufferCapacity(buffer);
+        return wrap(memoryAddress, memoryCapacity, byteOrder, autoClean);
       }
-      return buffer;
+      throw new IllegalArgumentException("Unsupported buffer type.");
     } else {
       throw new IllegalAccessException(RESTRICTED_MESSAGE);
     }
@@ -234,5 +283,9 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     static native void nativeFree(long address);
 
     static native long nativeRealloc(long address, long newSize);
+
+    static native long nativeGetDirectBufferAddress(Object buffer);
+
+    static native long nativeGetDirectBufferCapacity(Object buffer);
   }
 }

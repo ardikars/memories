@@ -39,6 +39,15 @@ JNIEXPORT jlong nativeRealloc(JNIEnv *env, jclass UNUSED(j_cls), jlong j_address
   }
 }
 
+JNIEXPORT jlong nativeGetDirectBufferAddress(JNIEnv *env, jclass UNUSED(j_cls), jobject jbuf) {
+  void *buf = (void *) (*env)->GetDirectBufferAddress(env, jbuf);
+  return A2L(buf);
+}
+
+JNIEXPORT jlong nativeGetDirectBufferCapacity(JNIEnv *env, jclass UNUSED(j_cls), jobject jbuf) {
+  return (jlong) (*env)->GetDirectBufferCapacity(env, jbuf);
+}
+
 int memory_allocator_register_native_methods(JNIEnv *env) {
   jclass cls;
   if ((cls = (*env)->FindClass(env, "memories/api/MemoryAllocatorApi$NativeMemoryAllocator")) == NULL) {
@@ -51,6 +60,8 @@ int memory_allocator_register_native_methods(JNIEnv *env) {
     {"nativeMalloc","(J)J",(void *) nativeMalloc},
     {"nativeFree","(J)V",(void *) nativeFree},
     {"nativeRealloc","(JJ)J",(void *) nativeRealloc},
+    {"nativeGetDirectBufferAddress","(Ljava/nio/DirectByteBuffer)J",(void *) nativeRealloc},
+    {"nativeGetDirectBufferCapacity","(Ljava/nio/DirectByteBuffer)J",(void *) nativeGetDirectBufferCapacity},
   };
   return (*env)->RegisterNatives(env, cls, methods, sizeof(methods) / sizeof(methods[0]));
 }

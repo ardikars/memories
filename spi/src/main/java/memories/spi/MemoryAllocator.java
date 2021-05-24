@@ -50,33 +50,33 @@ public interface MemoryAllocator {
    * Wrap raw memory address without cleaner.
    *
    * @param memoryAddress memory address.
-   * @param size block size.
+   * @param memoryCapacity block size.
    * @return returns wrapped memoryAddress.
    * @throws IllegalAccessException restricted method call.
    * @since 1.0.0
    */
   @Restricted
-  Memory of(long memoryAddress, long size) throws IllegalAccessException;
+  Memory of(long memoryAddress, long memoryCapacity) throws IllegalAccessException;
 
   /**
    * Wrap raw memory address without cleaner.
    *
    * @param memoryAddress memory address.
-   * @param size block size.
+   * @param memoryCapacity block size.
    * @param byteOrder byte order.
    * @return returns wrapped memoryAddress.
    * @throws IllegalAccessException restricted method call.
    * @since 1.0.0
    */
   @Restricted
-  Memory of(long memoryAddress, long size, Memory.ByteOrder byteOrder)
+  Memory of(long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder)
       throws IllegalAccessException;
 
   /**
    * Wrap raw memory address.
    *
    * @param memoryAddress memory address.
-   * @param size block size.
+   * @param memoryCapacity block size.
    * @param byteOrder byte order.
    * @param autoClean {@code true} for auto release the buffer if this object is no longer in use,
    *     {@code false} otherwise (without cleaner).
@@ -85,6 +85,44 @@ public interface MemoryAllocator {
    * @since 1.0.0
    */
   @Restricted
-  Memory of(long memoryAddress, long size, Memory.ByteOrder byteOrder, boolean autoClean)
+  Memory of(long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder, boolean autoClean)
+      throws IllegalAccessException;
+
+  /**
+   * Wrap direct buffer into {@link Memory} without cleaner.
+   *
+   * @param buffer direct buffer.
+   * @throws IllegalAccessException restricted method call.
+   * @return returns wrapped memoryAddress.
+   * @since 1.0.0
+   */
+  @Restricted
+  Memory of(Object buffer) throws IllegalAccessException;
+
+  /**
+   * Wrap direct buffer into {@link Memory} without cleaner.
+   *
+   * @param buffer direct buffer.
+   * @param byteOrder byte order.
+   * @throws IllegalAccessException restricted method call.
+   * @return returns wrapped memoryAddress.
+   * @since 1.0.0
+   */
+  @Restricted
+  Memory of(Object buffer, Memory.ByteOrder byteOrder) throws IllegalAccessException;
+
+  /**
+   * Wrap direct buffer into {@link Memory}.
+   *
+   * @param buffer direct buffer.
+   * @param byteOrder byte order.
+   * @param autoClean {@code true} for auto release the buffer if this object is no longer in use,
+   *     {@code false} otherwise (without cleaner).
+   * @throws IllegalAccessException restricted method call.
+   * @return returns wrapped memoryAddress.
+   * @since 1.0.0
+   */
+  @Restricted
+  Memory of(Object buffer, Memory.ByteOrder byteOrder, boolean autoClean)
       throws IllegalAccessException;
 }
