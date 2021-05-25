@@ -6,8 +6,6 @@
 
 package memories.spi;
 
-import memories.spi.annotation.Restricted;
-
 /**
  * Off-heap memory allocator.
  *
@@ -47,82 +45,21 @@ public interface MemoryAllocator {
   Memory allocate(long size, Memory.ByteOrder byteOrder, boolean clear);
 
   /**
-   * Wrap raw memory address without cleaner.
-   *
-   * @param memoryAddress memory address.
-   * @param memoryCapacity block size.
-   * @return returns wrapped memoryAddress.
-   * @throws IllegalAccessException restricted method call.
-   * @since 1.0.0
-   */
-  @Restricted
-  Memory of(long memoryAddress, long memoryCapacity) throws IllegalAccessException;
-
-  /**
-   * Wrap raw memory address without cleaner.
-   *
-   * @param memoryAddress memory address.
-   * @param memoryCapacity block size.
-   * @param byteOrder byte order.
-   * @return returns wrapped memoryAddress.
-   * @throws IllegalAccessException restricted method call.
-   * @since 1.0.0
-   */
-  @Restricted
-  Memory of(long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder)
-      throws IllegalAccessException;
-
-  /**
-   * Wrap raw memory address.
-   *
-   * @param memoryAddress memory address.
-   * @param memoryCapacity block size.
-   * @param byteOrder byte order.
-   * @param autoClean {@code true} for auto release the buffer if this object is no longer in use,
-   *     {@code false} otherwise (without cleaner).
-   * @throws IllegalAccessException restricted method call.
-   * @return returns wrapped memoryAddress.
-   * @since 1.0.0
-   */
-  @Restricted
-  Memory of(long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder, boolean autoClean)
-      throws IllegalAccessException;
-
-  /**
    * Wrap direct buffer into {@link Memory} without cleaner.
    *
    * @param buffer direct buffer.
-   * @throws IllegalAccessException restricted method call.
    * @return returns wrapped memoryAddress.
    * @since 1.0.0
    */
-  @Restricted
-  Memory of(Object buffer) throws IllegalAccessException;
+  Memory of(Object buffer);
 
   /**
    * Wrap direct buffer into {@link Memory} without cleaner.
    *
    * @param buffer direct buffer.
    * @param byteOrder byte order.
-   * @throws IllegalAccessException restricted method call.
    * @return returns wrapped memoryAddress.
    * @since 1.0.0
    */
-  @Restricted
-  Memory of(Object buffer, Memory.ByteOrder byteOrder) throws IllegalAccessException;
-
-  /**
-   * Wrap direct buffer into {@link Memory}.
-   *
-   * @param buffer direct buffer.
-   * @param byteOrder byte order.
-   * @param autoClean {@code true} for auto release the buffer if this object is no longer in use,
-   *     {@code false} otherwise (without cleaner).
-   * @throws IllegalAccessException restricted method call.
-   * @return returns wrapped memoryAddress.
-   * @since 1.0.0
-   */
-  @Restricted
-  Memory of(Object buffer, Memory.ByteOrder byteOrder, boolean autoClean)
-      throws IllegalAccessException;
+  Memory of(Object buffer, Memory.ByteOrder byteOrder);
 }

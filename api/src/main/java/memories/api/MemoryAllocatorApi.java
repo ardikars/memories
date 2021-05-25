@@ -24,15 +24,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
 
   static final Memory.ByteOrder NATIVE_BYTE_ORDER;
 
-  static final int RESTRICTED_LEVEL;
-  static final String RESTRICTED_MESSAGE =
-      "Access to restricted method is disabled by default; to enabled access to restricted method, the Memories property 'memories.restricted' must be set to a value other then deny.";
-  static final String RESTRICTED_PROPERTY_VALUE =
-      "The possible values for this property are:\n"
-          + "0) deny: issues a runtime exception on each restricted call. This is the default value;\n"
-          + "1) permit: allows restricted calls;\n"
-          + "2) warn: like permit, but also prints a one-line warning on each restricted call.\n";
-
   static {
     final String osName = System.getProperty("os.name").toUpperCase().trim();
     final String osArch = System.getProperty("os.arch").toLowerCase().trim();
@@ -40,16 +31,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     String arch = getArch(osArch);
     loadLibrary(getPath(name, arch));
     NATIVE_BYTE_ORDER = byteOrder(NativeMemoryAllocator.nativeByteOrderIsBE());
-    String restrictedAccess = System.getProperty("memories.restricted", "deny");
-    if (restrictedAccess.equals("deny")) {
-      RESTRICTED_LEVEL = 0;
-    } else if (restrictedAccess.equals("permit")) {
-      RESTRICTED_LEVEL = 1;
-    } else if (restrictedAccess.equals("warn")) {
-      RESTRICTED_LEVEL = 2;
-    } else {
-      RESTRICTED_LEVEL = 0;
-    }
     boolean hasByteBuffer;
     try {
       Class.forName("java.nio.ByteBuffer");
@@ -159,41 +140,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     }
   }
 
-  Memory wrap(
-      Object buffer,
-      long memoryAddress,
-      long memoryCapacity,
-      Memory.ByteOrder byteOrder,
-      boolean autoClean) {
-    if (memoryAddress < 0L) {
-      throw new IllegalStateException("Memory address must be positive value.");
-    }
-    if (memoryAddress == 0L) {
-      throw new IllegalStateException("Memory buffer already closed.");
-    }
-    Thread ownerThread = Thread.currentThread();
-
-    MemoryApi newBuf =
-        new MemoryApi(buffer, ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
-
-    if (autoClean) {
-      MemoryApi.PhantomCleaner cleaner = new MemoryApi.PhantomCleaner(memoryAddress, newBuf, RQ);
-      REFS.add(cleaner);
-    }
-
-    // cleanup native memory when garbage collected.
-    MemoryApi.PhantomCleaner cleaned;
-    while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
-      if (cleaned.address != 0L) {
-        // force deallocate memory and set address to '0'.
-        NativeMemoryAllocator.nativeFree(cleaned.address);
-        REFS.remove(cleaned);
-        cleaned.address = 0L;
-      }
-    }
-    return newBuf;
-  }
-
   public Memory allocate(long size) {
     return allocate(size, Memory.ByteOrder.BIG_ENDIAN);
   }
@@ -228,66 +174,25 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   }
 
   @Override
-  public Memory of(long memoryAddress, long memoryCapacity) throws IllegalAccessException {
-    return of(memoryAddress, memoryCapacity, NATIVE_BYTE_ORDER, false);
+  public Memory of(Object buffer) {
+    return of(buffer, NATIVE_BYTE_ORDER);
   }
 
   @Override
-  public Memory of(long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder)
-      throws IllegalAccessException {
-    return of(memoryAddress, memoryCapacity, byteOrder, false);
-  }
-
-  @Override
-  public Memory of(
-      long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder, boolean autoClean)
-      throws IllegalAccessException {
-    if (RESTRICTED_LEVEL > 0) {
-      if (RESTRICTED_LEVEL > 1) {
-        System.err.println("Calling restricted method MemoryAllocator#of(..).");
-      }
+  public Memory of(Object buffer, Memory.ByteOrder byteOrder) {
+    if (buffer != null && buffer.getClass().getName().equals("java.nio.DirectByteBuffer")) {
+      long memoryAddress = NativeMemoryAllocator.nativeGetDirectBufferAddress(buffer);
+      long memoryCapacity = NativeMemoryAllocator.nativeGetDirectBufferCapacity(buffer);
       if (memoryAddress < 0L) {
         throw new IllegalStateException("Memory address must be positive value.");
       }
       if (memoryAddress == 0L) {
         throw new IllegalStateException("Memory buffer already closed.");
       }
-      return wrap(null, memoryAddress, memoryCapacity, byteOrder, autoClean);
-    } else {
-      System.err.println(RESTRICTED_MESSAGE);
-      System.err.println(RESTRICTED_PROPERTY_VALUE);
-      throw new IllegalAccessException(RESTRICTED_MESSAGE);
+      Thread ownerThread = Thread.currentThread();
+      return new MemoryApi(buffer, ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
     }
-  }
-
-  @Override
-  public Memory of(Object buffer) throws IllegalAccessException {
-    return of(buffer, NATIVE_BYTE_ORDER, false);
-  }
-
-  @Override
-  public Memory of(Object buffer, Memory.ByteOrder byteOrder) throws IllegalAccessException {
-    return of(buffer, byteOrder, false);
-  }
-
-  @Override
-  public Memory of(Object buffer, Memory.ByteOrder byteOrder, boolean autoClean)
-      throws IllegalAccessException {
-    if (RESTRICTED_LEVEL > 0) {
-      if (RESTRICTED_LEVEL > 1) {
-        System.err.println("Calling restricted method MemoryAllocator#of(..).");
-      }
-      if (buffer != null && buffer.getClass().getName().equals("java.nio.DirectByteBuffer")) {
-        long memoryAddress = NativeMemoryAllocator.nativeGetDirectBufferAddress(buffer);
-        long memoryCapacity = NativeMemoryAllocator.nativeGetDirectBufferCapacity(buffer);
-        return wrap(buffer, memoryAddress, memoryCapacity, byteOrder, autoClean);
-      }
-      throw new IllegalArgumentException("Unsupported buffer type.");
-    } else {
-      System.err.println(RESTRICTED_MESSAGE);
-      System.err.println(RESTRICTED_PROPERTY_VALUE);
-      throw new IllegalAccessException(RESTRICTED_MESSAGE);
-    }
+    throw new IllegalArgumentException("Unsupported buffer type.");
   }
 
   static final class NativeMemoryAllocator {

@@ -4,9 +4,6 @@
 
 package memories.api;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
 import org.junit.jupiter.api.Assertions;
@@ -15,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
+
+import java.io.*;
+import java.nio.ByteBuffer;
 
 @RunWith(JUnitPlatform.class)
 public class MemoryAllocatorTest {
@@ -114,10 +114,9 @@ public class MemoryAllocatorTest {
   @Test
   void wrapDirectByteBuffer() {
     ByteBuffer buf = ByteBuffer.allocateDirect(8);
-    try {
-      Memory memory = allocator.of(buf);
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
+    buf.putInt(0, 10);
+    Memory memory = allocator.of(buf);
+    assert 10 == memory.getInt(0);
+    assert memory.release(); // release buffer immediately without waiting both buf and memory GC'ed
   }
 }

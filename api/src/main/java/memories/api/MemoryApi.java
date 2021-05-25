@@ -38,7 +38,8 @@ class MemoryApi implements Memory {
   private boolean bigEndian;
   private PhantomCleaner phantomCleaner;
 
-  MemoryApi(Object buffer,
+  MemoryApi(
+      Object buffer,
       Thread ownerThread,
       long address,
       long capacity,
@@ -637,26 +638,6 @@ class MemoryApi implements Memory {
   }
 
   @Override
-  public long memoryAddress() throws IllegalAccessException {
-    if (MemoryAllocatorApi.RESTRICTED_LEVEL > 0) {
-      if (MemoryAllocatorApi.RESTRICTED_LEVEL > 1) {
-        System.err.println("Calling restricted method MemoryAllocator#of(..).");
-      }
-      if (address < 0L) {
-        throw new IllegalStateException("Memory address must be positive value.");
-      }
-      if (address == 0L) {
-        throw new IllegalStateException("Memory buffer already closed.");
-      }
-      return address;
-    } else {
-      System.err.println(MemoryAllocatorApi.RESTRICTED_MESSAGE);
-      System.err.println(MemoryAllocatorApi.RESTRICTED_PROPERTY_VALUE);
-      throw new IllegalAccessException(MemoryAllocatorApi.RESTRICTED_MESSAGE);
-    }
-  }
-
-  @Override
   public Thread ownerThread() {
     return ownerThread;
   }
@@ -1028,7 +1009,8 @@ class MemoryApi implements Memory {
 
   // @Override
   public Memory duplicate() {
-    MemoryApi memory = new MemoryApi(buffer, ownerThread, address, capacity, byteOrder(), allocator);
+    MemoryApi memory =
+        new MemoryApi(buffer, ownerThread, address, capacity, byteOrder(), allocator);
     memory.readerIndex = readerIndex;
     memory.writerIndex = writerIndex;
     memory.markedReaderIndex = markedReaderIndex;
@@ -1108,7 +1090,13 @@ class MemoryApi implements Memory {
     private final MemoryApi prev;
 
     SlicedMemoryApi(MemoryApi prev, long index, long length) {
-      super(prev.buffer, prev.ownerThread, prev.address + index, length, prev.byteOrder(), prev.allocator);
+      super(
+          prev.buffer,
+          prev.ownerThread,
+          prev.address + index,
+          length,
+          prev.byteOrder(),
+          prev.allocator);
       this.prev = prev;
       this.readerIndex = prev.readerIndex - index < 0 ? 0 : prev.readerIndex - index;
       this.writerIndex = prev.writerIndex - index < 0 ? 0 : prev.writerIndex - index;
