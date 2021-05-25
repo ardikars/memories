@@ -12,6 +12,7 @@ public class Sample {
     final MemoryAllocator allocator = new MemoryAllocatorApi();
     readWrite(allocator);
     wrapDirectByteBuffer(allocator);
+    asBuffer(allocator);
   }
 
   private static void readWrite(MemoryAllocator allocator) {
@@ -34,5 +35,13 @@ public class Sample {
     assert 10 == memory.getInt(0);
     assert memory
         .release(); // release buffer immediately without waiting both buffer and memory GC'ed
+  }
+
+  private static void asBuffer(MemoryAllocator allocator) {
+    final Memory memory = allocator.allocate(4);
+    memory.setInt(0, 10);
+    ByteBuffer buffer = (ByteBuffer) memory.asBuffer(ByteBuffer.class);
+    assert 10 == buffer.getInt(0);
+    assert memory.release();
   }
 }

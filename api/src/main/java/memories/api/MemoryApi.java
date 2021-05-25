@@ -11,6 +11,8 @@ import memories.spi.exception.MemoryAccessException;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
+import java.util.HashMap;
+import java.util.Map;
 
 class MemoryApi implements Memory {
 
@@ -26,6 +28,8 @@ class MemoryApi implements Memory {
   }
 
   private final MemoryAllocator allocator;
+  // hold the strong reference object created by asBuffer()
+  private final Map<String, Object> cachingAsBuffer = new HashMap<>();
   protected Object buffer;
   protected Thread ownerThread;
   protected long address;
@@ -34,7 +38,6 @@ class MemoryApi implements Memory {
   protected long writerIndex;
   protected long markedReaderIndex;
   protected long markedWriterIndex;
-
   private boolean bigEndian;
   private PhantomCleaner phantomCleaner;
 
@@ -642,6 +645,26 @@ class MemoryApi implements Memory {
     return ownerThread;
   }
 
+  @Override
+  public Object asBuffer(Class type) {
+    if (MemoryAllocatorApi.HAS_BYTE_BUFFER
+        && type != null
+        && "java.nio.ByteBuffer".equals(type.getName())) {
+      if (capacity > Integer.MAX_VALUE) {
+        throw new IllegalStateException("Buffer capacity to large.");
+      }
+      Object obj = cachingAsBuffer.get(type.getName());
+      if (obj == null) {
+        Object buffer = NativeMemoryAccess.nativeWrapToDirectByteBuffer(address, capacity);
+        cachingAsBuffer.put(type.getName(), buffer);
+        return buffer;
+      } else {
+        return obj;
+      }
+    }
+    throw new IllegalArgumentException("Unsupported buffer type.");
+  }
+
   // @Override
   public ByteOrder byteOrder() {
     return bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
@@ -1083,6 +1106,8 @@ class MemoryApi implements Memory {
 
     private static native void nativeSetLongArray(
         long address, long[] src, long srcIdx, long length);
+
+    private static native Object nativeWrapToDirectByteBuffer(long address, long capacity);
   }
 
   static class SlicedMemoryApi extends MemoryApi implements Memory.Sliced {

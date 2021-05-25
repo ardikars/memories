@@ -26,9 +26,14 @@ JNIEXPORT jlong JNICALL nativeCopyMemory(JNIEnv * UNUSED_ENV(env), jclass UNUSED
   return j_dst;
 }
 
-JNIEXPORT jint JNICALL nativeCompareMemory(JNIEnv * UNUSED_ENV(eng), jclass UNUSED(j_cls), jlong j_addr1, jlong j_addr2, jlong j_size) {
+JNIEXPORT jint JNICALL nativeCompareMemory(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls), jlong j_addr1, jlong j_addr2, jlong j_size) {
   jint ret = memcmp(L2A(j_addr1), L2A(j_addr2), j_size);
   return ret;
+}
+
+JNIEXPORT jobject JNICALL nativeWrapToDirectByteBuffer(JNIEnv *env, jclass UNUSED(j_cls), jlong j_address, jlong j_capacity) {
+  void *buf = L2A(j_address);
+  return (*env)->NewDirectByteBuffer(env, buf, (jint) (j_capacity & 0x7fffffff));
 }
 
 #define GET(JTYPE, NTYPE)  \
@@ -73,6 +78,7 @@ int memory_register_native_methods(JNIEnv *env) {
     {"nativeSetMemory","(JIJ)J",(void *) nativeSetMemory},
     {"nativeCopyMemory","(JJJ)J",(void *) nativeCopyMemory},
     {"nativeCompareMemory","(JJJ)I",(void *) nativeCompareMemory},
+    {"nativeWrapToDirectByteBuffer","(JJ)Ljava/lang/Object;",(void *) nativeWrapToDirectByteBuffer},
     {"nativeGetByte","(J)B",(void *) nativeGetByte},
     {"nativeSetByte","(JB)V",(void *) nativeSetByte},
     {"nativeGetShort","(J)S",(void *) nativeGetShort},

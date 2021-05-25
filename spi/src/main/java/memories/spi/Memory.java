@@ -1175,6 +1175,16 @@ public interface Memory {
   Thread ownerThread();
 
   /**
+   * Convert this {@link Memory} to specific buffer type.
+   *
+   * @param type buffer type.
+   * @return returns buffer.
+   * @throws IllegalArgumentException unsupported buffer type.
+   * @since 1.0.0
+   */
+  Object asBuffer(Class type);
+
+  /**
    * Returns a copy of this buffer's readable bytes. Modifying the content of the returned buffer or
    * this buffer does not affect each other at all. This method is identical to {@code
    * copy(readerIndex(), readableBytes())}. This method does not modify {@code readerIndex} or

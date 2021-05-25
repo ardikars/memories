@@ -61,7 +61,7 @@ int memory_allocator_register_native_methods(JNIEnv *env) {
     {"nativeFree","(J)V",(void *) nativeFree},
     {"nativeRealloc","(JJ)J",(void *) nativeRealloc},
     {"nativeGetDirectBufferAddress","(Ljava/lang/Object;)J",(void *) nativeGetDirectBufferAddress},
-    {"nativeGetDirectBufferCapacity","(Ljava/lang/Object;)J",(void *) nativeGetDirectBufferCapacity},
+    {"nativeGetDirectBufferCapacity","(Ljava/lang/Object;)J",(void *) nativeGetDirectBufferCapacity}
   };
   return (*env)->RegisterNatives(env, cls, methods, sizeof(methods) / sizeof(methods[0]));
 }
