@@ -84,6 +84,14 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       return "x86";
     } else if ("x86_64".equals(osArch) || "amd64".equals(osArch) || "x64".equals(osArch)) {
       return "x86_64";
+    } else if ("aarch64".equals(osArch)) {
+      return "aarch64";
+    } else if ("armhf".equals(osArch)) {
+      return "armhf";
+    } else if ("armv7".equals(osArch)) {
+      return "armv7";
+    } else if (osArch.contains("ppc64")) {
+      return "ppc64le";
     }
     return null;
   }
