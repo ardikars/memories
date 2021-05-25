@@ -26,9 +26,10 @@ public class MemoryAllocatorApi implements MemoryAllocator {
 
   static final int RESTRICTED_LEVEL;
   static final String RESTRICTED_MESSAGE =
-      "Access to restricted method is disabled by default; to enabled access to restricted method, the Memories property 'memories.restricted' must be set to a value other then deny. The possible values for this property are:";
+      "Access to restricted method is disabled by default; to enabled access to restricted method, the Memories property 'memories.restricted' must be set to a value other then deny.";
   static final String RESTRICTED_PROPERTY_VALUE =
-      "0) deny: issues a runtime exception on each restricted call. This is the default value;\n"
+      "The possible values for this property are:\n"
+          + "0) deny: issues a runtime exception on each restricted call. This is the default value;\n"
           + "1) permit: allows restricted calls;\n"
           + "2) warn: like permit, but also prints a one-line warning on each restricted call.\n";
 
@@ -151,7 +152,11 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   }
 
   Memory wrap(
-      long memoryAddress, long memoryCapacity, Memory.ByteOrder byteOrder, boolean autoClean) {
+      Object buffer,
+      long memoryAddress,
+      long memoryCapacity,
+      Memory.ByteOrder byteOrder,
+      boolean autoClean) {
     if (memoryAddress < 0L) {
       throw new IllegalStateException("Memory address must be positive value.");
     }
@@ -160,7 +165,8 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     }
     Thread ownerThread = Thread.currentThread();
 
-    MemoryApi newBuf = new MemoryApi(ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
+    MemoryApi newBuf =
+        new MemoryApi(buffer, ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
 
     if (autoClean) {
       MemoryApi.PhantomCleaner cleaner = new MemoryApi.PhantomCleaner(memoryAddress, newBuf, RQ);
@@ -196,7 +202,7 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     }
 
     Thread ownerThread = Thread.currentThread();
-    MemoryApi buffer = new MemoryApi(ownerThread, address, size, byteOrder, this);
+    MemoryApi buffer = new MemoryApi(null, ownerThread, address, size, byteOrder, this);
     MemoryApi.PhantomCleaner cleaner = new MemoryApi.PhantomCleaner(address, buffer, RQ);
     REFS.add(cleaner);
 
@@ -238,8 +244,10 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       if (memoryAddress == 0L) {
         throw new IllegalStateException("Memory buffer already closed.");
       }
-      return wrap(memoryAddress, memoryCapacity, byteOrder, autoClean);
+      return wrap(null, memoryAddress, memoryCapacity, byteOrder, autoClean);
     } else {
+      System.err.println(RESTRICTED_MESSAGE);
+      System.err.println(RESTRICTED_PROPERTY_VALUE);
       throw new IllegalAccessException(RESTRICTED_MESSAGE);
     }
   }
@@ -264,10 +272,12 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       if (buffer != null && buffer.getClass().getName().equals("java.nio.DirectByteBuffer")) {
         long memoryAddress = NativeMemoryAllocator.nativeGetDirectBufferAddress(buffer);
         long memoryCapacity = NativeMemoryAllocator.nativeGetDirectBufferCapacity(buffer);
-        return wrap(memoryAddress, memoryCapacity, byteOrder, autoClean);
+        return wrap(buffer, memoryAddress, memoryCapacity, byteOrder, autoClean);
       }
       throw new IllegalArgumentException("Unsupported buffer type.");
     } else {
+      System.err.println(RESTRICTED_MESSAGE);
+      System.err.println(RESTRICTED_PROPERTY_VALUE);
       throw new IllegalAccessException(RESTRICTED_MESSAGE);
     }
   }
