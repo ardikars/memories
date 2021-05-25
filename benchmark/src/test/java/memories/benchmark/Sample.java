@@ -31,7 +31,7 @@ public class Sample {
   private static void wrapDirectByteBuffer(MemoryAllocator allocator) {
     final ByteBuffer buffer = ByteBuffer.allocateDirect(4);
     buffer.putInt(0, 10);
-    final Memory memory = allocator.of(buffer);
+    final Memory memory = allocator.wrap(buffer);
     assert 10 == memory.getInt(0);
     assert memory
         .release(); // release buffer immediately without waiting both buffer and memory GC'ed
@@ -40,8 +40,11 @@ public class Sample {
   private static void asBuffer(MemoryAllocator allocator) {
     final Memory memory = allocator.allocate(4);
     memory.setInt(0, 10);
-    ByteBuffer buffer = (ByteBuffer) memory.asBuffer(ByteBuffer.class);
+    ByteBuffer buffer = (ByteBuffer) memory.as(ByteBuffer.class);
+    assert buffer.isDirect();
+    assert !buffer.isReadOnly();
     assert 10 == buffer.getInt(0);
+    assert memory.capacity() == buffer.capacity();
     assert memory.release();
   }
 }

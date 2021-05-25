@@ -174,12 +174,12 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   }
 
   @Override
-  public Memory of(Object buffer) {
-    return of(buffer, NATIVE_BYTE_ORDER);
+  public Memory wrap(Object buffer) {
+    return wrap(buffer, NATIVE_BYTE_ORDER);
   }
 
   @Override
-  public Memory of(Object buffer, Memory.ByteOrder byteOrder) {
+  public Memory wrap(Object buffer, Memory.ByteOrder byteOrder) {
     if (buffer != null && buffer.getClass().getName().equals("java.nio.DirectByteBuffer")) {
       long memoryAddress = NativeMemoryAllocator.nativeGetDirectBufferAddress(buffer);
       long memoryCapacity = NativeMemoryAllocator.nativeGetDirectBufferCapacity(buffer);

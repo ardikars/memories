@@ -51,7 +51,7 @@ public interface MemoryAllocator {
    * @return returns wrapped memoryAddress.
    * @since 1.0.0
    */
-  Memory of(Object buffer);
+  Memory wrap(Object buffer);
 
   /**
    * Wrap direct buffer into {@link Memory} without cleaner.
@@ -61,5 +61,5 @@ public interface MemoryAllocator {
    * @return returns wrapped memoryAddress.
    * @since 1.0.0
    */
-  Memory of(Object buffer, Memory.ByteOrder byteOrder);
+  Memory wrap(Object buffer, Memory.ByteOrder byteOrder);
 }

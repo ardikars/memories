@@ -1182,7 +1182,7 @@ public interface Memory {
    * @throws IllegalArgumentException unsupported buffer type.
    * @since 1.0.0
    */
-  Object asBuffer(Class type);
+  Object as(Class type);
 
   /**
    * Returns a copy of this buffer's readable bytes. Modifying the content of the returned buffer or

@@ -646,7 +646,7 @@ class MemoryApi implements Memory {
   }
 
   @Override
-  public Object asBuffer(Class type) {
+  public Object as(Class type) {
     if (MemoryAllocatorApi.HAS_BYTE_BUFFER
         && type != null
         && "java.nio.ByteBuffer".equals(type.getName())) {

@@ -115,7 +115,7 @@ public class MemoryAllocatorTest {
   void wrapDirectByteBuffer() {
     ByteBuffer buf = ByteBuffer.allocateDirect(8);
     buf.putInt(0, 10);
-    Memory memory = allocator.of(buf);
+    Memory memory = allocator.wrap(buf);
     assert 10 == memory.getInt(0);
     assert memory.release(); // release buffer immediately without waiting both buf and memory GC'ed
   }
