@@ -646,6 +646,12 @@ class MemoryApi implements Memory {
   }
 
   @Override
+  public Memory ownerThread(Thread thread) {
+    this.ownerThread = thread;
+    return this;
+  }
+
+  @Override
   public Object as(Class type) {
     if (MemoryAllocatorApi.HAS_BYTE_BUFFER
         && type != null

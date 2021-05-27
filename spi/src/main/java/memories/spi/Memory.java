@@ -1175,6 +1175,15 @@ public interface Memory {
   Thread ownerThread();
 
   /**
+   * Transfer {@link Memory} thread ownership.
+   *
+   * @param thread th new owner thread.
+   * @return returns this {@link Memory}.
+   * @since 1.0.0
+   */
+  Memory ownerThread(Thread thread);
+
+  /**
    * Convert this {@link Memory} to specific buffer type.
    *
    * @param type buffer type.
