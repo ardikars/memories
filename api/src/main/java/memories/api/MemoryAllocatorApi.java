@@ -21,6 +21,7 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   static final ReferenceQueue RQ = new ReferenceQueue();
 
   static final boolean HAS_BYTE_BUFFER;
+  static final int JAVA_MAJOR_VERSION;
 
   static final Memory.ByteOrder NATIVE_BYTE_ORDER;
 
@@ -39,6 +40,20 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       hasByteBuffer = false;
     }
     HAS_BYTE_BUFFER = hasByteBuffer;
+    int javaMajorVersion;
+    final String[] components =
+        System.getProperty("java.specification.version", "1.6").split("\\.");
+    final int[] version = new int[components.length];
+    for (int i = 0; i < components.length; i++) {
+      version[i] = Integer.parseInt(components[i]);
+    }
+    if (version[0] == 1) {
+      assert version[1] >= 6;
+      javaMajorVersion = version[1];
+    } else {
+      javaMajorVersion = version[0];
+    }
+    JAVA_MAJOR_VERSION = javaMajorVersion;
   }
 
   static Memory.ByteOrder byteOrder(boolean isBE) {
@@ -157,19 +172,10 @@ public class MemoryAllocatorApi implements MemoryAllocator {
 
     Thread ownerThread = Thread.currentThread();
     MemoryApi buffer = new MemoryApi(null, ownerThread, address, size, byteOrder, this);
-    MemoryApi.PhantomCleaner cleaner = new MemoryApi.PhantomCleaner(address, buffer, RQ);
+    MemoryApi.PhantomCleaner cleaner =
+        new MemoryApi.PhantomCleaner(MemoryApi.PhantomCleaner.TYPE_JNI, address, buffer, RQ);
     REFS.add(cleaner);
-
-    // cleanup native memory when garbage collected.
-    MemoryApi.PhantomCleaner cleaned;
-    while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
-      if (cleaned.address != 0L) {
-        // force deallocate memory and set address to '0'.
-        NativeMemoryAllocator.nativeFree(cleaned.address);
-        REFS.remove(cleaned);
-        cleaned.address = 0L;
-      }
-    }
+    clean();
     return buffer;
   }
 
@@ -189,10 +195,31 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       if (memoryAddress == 0L) {
         throw new IllegalStateException("Memory buffer already closed.");
       }
+
       Thread ownerThread = Thread.currentThread();
-      return new MemoryApi(buffer, ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
+      MemoryApi newBuffer =
+          new MemoryApi(buffer, ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
+      MemoryApi.PhantomCleaner cleaner =
+          new MemoryApi.PhantomCleaner(
+              MemoryApi.PhantomCleaner.TYPE_NIO, memoryAddress, newBuffer, RQ);
+      REFS.add(cleaner);
+      clean();
+      return newBuffer;
     }
     throw new IllegalArgumentException("Unsupported buffer type.");
+  }
+
+  void clean() {
+    // cleanup native memory when garbage collected.
+    MemoryApi.PhantomCleaner cleaned;
+    while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
+      if (cleaned.address != 0L) {
+        // force deallocate memory and set address to '0'.
+        NativeMemoryAllocator.nativeFree(cleaned.address);
+        REFS.remove(cleaned);
+        cleaned.address = 0L;
+      }
+    }
   }
 
   static final class NativeMemoryAllocator {
@@ -210,5 +237,7 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     static native long nativeGetDirectBufferAddress(Object buffer);
 
     static native long nativeGetDirectBufferCapacity(Object buffer);
+
+    static native void nativeCleanDirectByteBuffer(int jver, Object buffer);
   }
 }

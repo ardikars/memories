@@ -208,20 +208,6 @@ public class MemoryTest {
   }
 
   @Test
-  void getBoolean() {
-    final Memory largeBuffer = allocator.allocate(LONG_BYTES);
-    for (int i = 0; i < LONG_BYTES; i++) {
-      largeBuffer.setByte(i, i);
-      if (i < 1) {
-        Assertions.assertFalse(largeBuffer.getBoolean(i));
-      } else {
-        Assertions.assertTrue(largeBuffer.getBoolean(i));
-      }
-    }
-    Assertions.assertTrue(largeBuffer.release());
-  }
-
-  @Test
   void getUnsignedByte() {
     final Memory largeBuffer = allocator.allocate(LONG_BYTES);
     for (int i = 0; i < LONG_BYTES; i++) {
@@ -411,20 +397,6 @@ public class MemoryTest {
   }
 
   @Test
-  void setBoolean() {
-    final Memory largeBuffer = allocator.allocate(LONG_BYTES);
-    for (int i = 0; i < LONG_BYTES; i++) {
-      largeBuffer.setBoolean(i, i % 2 == 0);
-      if (i % 2 == 0) {
-        Assertions.assertTrue(largeBuffer.getByte(i) == 1);
-      } else {
-        Assertions.assertTrue(largeBuffer.getByte(i) == 0);
-      }
-    }
-    Assertions.assertTrue(largeBuffer.release());
-  }
-
-  @Test
   void setShortRE() {
     final Memory largeBuffer = allocator.allocate(LONG_BYTES);
     for (int i = 0; i < LONG_BYTES / SHORT_BYTES; i++) {
@@ -571,28 +543,6 @@ public class MemoryTest {
 
     Assertions.assertTrue(smallBuffer.release());
     Assertions.assertTrue(mediumBuffer.release());
-    Assertions.assertTrue(largeBuffer.release());
-  }
-
-  @Test
-  void readBoolean() {
-    final Memory largeBuffer = allocator.allocate(LONG_BYTES);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(false);
-    largeBuffer.writeBoolean(false);
-    largeBuffer.writeBoolean(false);
-    largeBuffer.writeBoolean(false);
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
     Assertions.assertTrue(largeBuffer.release());
   }
 
@@ -927,28 +877,6 @@ public class MemoryTest {
             largeBuffer.skipBytes(4);
           }
         });
-    Assertions.assertTrue(largeBuffer.release());
-  }
-
-  @Test
-  void writeBoolean() {
-    final Memory largeBuffer = allocator.allocate(LONG_BYTES);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(true);
-    largeBuffer.writeBoolean(false);
-    largeBuffer.writeBoolean(false);
-    largeBuffer.writeBoolean(false);
-    largeBuffer.writeBoolean(false);
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertTrue(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
-    Assertions.assertFalse(largeBuffer.readBoolean());
     Assertions.assertTrue(largeBuffer.release());
   }
 

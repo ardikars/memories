@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
     <toolchain>
         <type>jdk</type>
         <provides>
-            <id>Java7</id>
-            <version>1.7</version>
+            <id>Java8</id>
+            <version>1.8</version>
         </provides>
         <configuration>
             <jdkHome>${env.JAVA_HOME}</jdkHome>

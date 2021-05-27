@@ -233,11 +233,6 @@ class MemoryApi implements Memory {
   }
 
   // @Override
-  public boolean getBoolean(long index) {
-    return getByte(index) > 0;
-  }
-
-  // @Override
   public short getUnsignedByte(long index) {
     return (short) (getByte(index) & 0xFF);
   }
@@ -315,11 +310,6 @@ class MemoryApi implements Memory {
   }
 
   // @Override
-  public Memory setBoolean(long index, boolean value) {
-    return setByte(index, value ? 1 : 0);
-  }
-
-  // @Override
   public Memory setShortRE(long index, int value) {
     return setShort(index, shortReverseBytes((short) (value & 0xFFFF)));
   }
@@ -383,11 +373,6 @@ class MemoryApi implements Memory {
   // @Override
   public Memory setBytes(long index, byte[] src) {
     return setBytes(index, src, 0, src.length);
-  }
-
-  // @Override
-  public boolean readBoolean() {
-    return readByte() != 0;
   }
 
   // @Override
@@ -528,11 +513,6 @@ class MemoryApi implements Memory {
     checkReadableBytes(length);
     readerIndex += length;
     return this;
-  }
-
-  // @Override
-  public Memory writeBoolean(boolean value) {
-    return writeByte(value ? 1 : 0);
   }
 
   // @Override
@@ -1055,13 +1035,21 @@ class MemoryApi implements Memory {
 
   // @Override
   public boolean release() {
-    if (phantomCleaner.address > 0) {
-      MemoryAllocatorApi.NativeMemoryAllocator.nativeFree(address);
+    if (phantomCleaner.type == PhantomCleaner.TYPE_NIO && phantomCleaner.address > 0) {
+      MemoryAllocatorApi.NativeMemoryAllocator.nativeCleanDirectByteBuffer(
+          MemoryAllocatorApi.JAVA_MAJOR_VERSION, buffer);
       address = 0L;
       phantomCleaner.address = 0L;
       return true;
     } else {
-      return false;
+      if (phantomCleaner.address > 0) {
+        MemoryAllocatorApi.NativeMemoryAllocator.nativeFree(address);
+        address = 0L;
+        phantomCleaner.address = 0L;
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 
@@ -1146,10 +1134,15 @@ class MemoryApi implements Memory {
 
   static final class PhantomCleaner extends PhantomReference {
 
+    static final int TYPE_JNI = 0;
+    static final int TYPE_NIO = 1;
+
+    final int type;
     long address;
 
-    PhantomCleaner(long rawAddr, MemoryApi referent, ReferenceQueue q) {
+    PhantomCleaner(int type, long rawAddr, MemoryApi referent, ReferenceQueue q) {
       super(referent, q);
+      this.type = type;
       this.address = rawAddr;
       referent.phantomCleaner = this;
     }

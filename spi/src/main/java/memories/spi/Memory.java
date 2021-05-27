@@ -187,17 +187,6 @@ public interface Memory {
   Memory ensureWritable(long minWritableBytes);
 
   /**
-   * Gets a boolean at the specified absolute (@code index) in this buffer. This method does not
-   * modify the {@code readerIndex} or {@code writerIndex} of this buffer.
-   *
-   * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
-   *     {@code index + 1} is greater than {@code this.capacity}
-   * @return boolean value.
-   * @since 1.0.0
-   */
-  boolean getBoolean(long index);
-
-  /**
    * Gets a byte at the specified absolute {@code index} in this buffer. This method does not modify
    * {@code readerIndex} or {@code writerIndex} of this buffer.
    *
@@ -466,19 +455,6 @@ public interface Memory {
   Memory getBytes(long index, byte[] dst, long dstIndex, long length);
 
   /**
-   * Sets the specified boolean at the specified absolute {@code index} in this buffer. This method
-   * does not modify {@code readerIndex} or {@code writerIndex} of this buffer.
-   *
-   * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
-   *     {@code index + 1} is greater than {@code this.capacity}
-   * @param index index.
-   * @param value value.
-   * @return this {@link Memory}.
-   * @since 1.0.0
-   */
-  Memory setBoolean(long index, boolean value);
-
-  /**
    * Sets the specified byte at the specified absolute {@code index} in this buffer. The 24
    * high-order bits of the specified value are ignored. This method does not modify {@code
    * readerIndex} or {@code writerIndex} of this buffer.
@@ -713,16 +689,6 @@ public interface Memory {
    * @since 1.0.0
    */
   Memory setBytes(long index, byte[] src, long srcIndex, long length);
-
-  /**
-   * Gets a boolean at the current {@code readerIndex} and increases the {@code readerIndex} by
-   * {@code 1} in this buffer.
-   *
-   * @throws IndexOutOfBoundsException if {@code this.readableBytes} is less than {@code 1}
-   * @return boolean value.
-   * @since 1.0.0
-   */
-  boolean readBoolean();
 
   /**
    * Gets a byte at the current {@code readerIndex} and increases the {@code readerIndex} by {@code
@@ -965,16 +931,6 @@ public interface Memory {
    * @since 1.0.0
    */
   Memory skipBytes(long length);
-
-  /**
-   * Sets the specified boolean at the current {@code writerIndex} and increases the {@code
-   * writerIndex} by {@code 1} in this buffer.
-   *
-   * @return this {@link Memory}.
-   * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 1}
-   * @since 1.0.0
-   */
-  Memory writeBoolean(boolean value);
 
   /**
    * Sets the specified byte at the current {@code writerIndex} and increases the {@code

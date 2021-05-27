@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 @RunWith(JUnitPlatform.class)
 public class MemoryAllocatorTest {
@@ -114,6 +115,7 @@ public class MemoryAllocatorTest {
   @Test
   void wrapDirectByteBuffer() {
     ByteBuffer buf = ByteBuffer.allocateDirect(8);
+    buf.order(ByteOrder.nativeOrder());
     buf.putInt(0, 10);
     Memory memory = allocator.wrap(buf);
     assert 10 == memory.getInt(0);
