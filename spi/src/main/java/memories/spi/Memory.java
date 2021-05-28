@@ -104,6 +104,9 @@ public interface Memory {
   boolean isReadable();
 
   /**
+   * Checks if this {@link Memory} is readable for given {@code numBytes}.
+   *
+   * @param numBytes number of bytes.
    * @return returns {@code true} if and only if this buffer contains equal to or more than the
    *     specified number of elements.
    * @since 1.0.0
@@ -118,6 +121,9 @@ public interface Memory {
   boolean isWritable();
 
   /**
+   * Chaeks if this {@link Memory} is writable for given {@code numByes}.
+   *
+   * @param numBytes numBytes.
    * @return returns {@code true} if and only if this buffer has enough room to allow writing the
    *     specified number of elements.
    * @since 1.0.0
@@ -190,6 +196,7 @@ public interface Memory {
    * Gets a byte at the specified absolute {@code index} in this buffer. This method does not modify
    * {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 1} is greater than {@code this.capacity}
    * @return byte value.
@@ -201,6 +208,7 @@ public interface Memory {
    * Gets an unsigned byte at the specified absolute {@code index} in this buffer. This method does
    * not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 1} is greater than {@code this.capacity}
    * @return unsigned byte value stored in {@code short}.
@@ -212,6 +220,7 @@ public interface Memory {
    * Gets a 16-bit short integer at the specified absolute {@code index} in this buffer. This method
    * does not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 2} is greater than {@code this.capacity}
    * @return short value.
@@ -224,6 +233,7 @@ public interface Memory {
    * Native Endian Byte Order. This method does not modify {@code readerIndex} or {@code
    * writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 2} is greater than {@code this.capacity}
    * @return reserved native endian short value.
@@ -235,10 +245,10 @@ public interface Memory {
    * Gets an unsigned 16-bit short integer at the specified absolute {@code index} in this buffer.
    * This method does not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
-   * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
-   *     {@code index + 2} is greater than {@code this.capacity}
+   * @param index index.
+   * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or *
+   *     {@code index + 2} is greater than {@code this.capacity} * @since 1.0.0
    * @return unsigned short value stored in {@code integer}.
-   * @since 1.0.0
    */
   int getUnsignedShort(long index);
 
@@ -247,6 +257,7 @@ public interface Memory {
    * Reserved Native Endian Byte Order. This method does not modify {@code readerIndex} or {@code
    * writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 2} is greater than {@code this.capacity}
    * @return unsigned reserved native endian short value stored in {@code integer}.
@@ -258,6 +269,7 @@ public interface Memory {
    * Gets a 32-bit integer at the specified absolute {@code index} in this buffer. This method does
    * not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 4} is greater than {@code this.capacity}
    * @return integer value.
@@ -270,6 +282,7 @@ public interface Memory {
    * Native Endian Byte Order. This method does not modify {@code readerIndex} or {@code
    * writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 4} is greater than {@code this.capacity}
    * @return reserved native endian integer value.
@@ -281,6 +294,7 @@ public interface Memory {
    * Gets an unsigned 32-bit integer at the specified absolute {@code index} in this buffer. This
    * method does not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 4} is greater than {@code this.capacity}
    * @return unsigned integer value stored in {@code long}.
@@ -293,6 +307,7 @@ public interface Memory {
    * Reserved Native Endian Byte Order. This method does not modify {@code readerIndex} or {@code
    * writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 4} is greater than {@code this.capacity}
    * @return unsigned reserved native endian integer value stored in {@code long}.
@@ -304,6 +319,7 @@ public interface Memory {
    * Gets a 64-bit long integer at the specified absolute {@code index} in this buffer. This method
    * does not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 8} is greater than {@code this.capacity}
    * @return long value.
@@ -316,6 +332,7 @@ public interface Memory {
    * Native Endian Byte Order. This method does not modify {@code readerIndex} or {@code
    * writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 8} is greater than {@code this.capacity}
    * @return reserved native endian long value.
@@ -327,6 +344,7 @@ public interface Memory {
    * Gets a 32-bit floating point number at the specified absolute {@code index} in this buffer.
    * This method does not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 4} is greater than {@code this.capacity}
    * @return float value.
@@ -339,6 +357,7 @@ public interface Memory {
    * Reserved Native Endian Byte Order. This method does not modify {@code readerIndex} or {@code
    * writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 4} is greater than {@code this.capacity}
    * @return reserved native endian float value.
@@ -350,6 +369,7 @@ public interface Memory {
    * Gets a 64-bit floating point number at the specified absolute {@code index} in this buffer.
    * This method does not modify {@code readerIndex} or {@code writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 8} is greater than {@code this.capacity}
    * @return double value.
@@ -362,6 +382,7 @@ public interface Memory {
    * Reserved Native Endian Byte Order. This method does not modify {@code readerIndex} or {@code
    * writerIndex} of this buffer.
    *
+   * @param index index.
    * @throws IndexOutOfBoundsException if the specified {@code index} is less than {@code 0} or
    *     {@code index + 8} is greater than {@code this.capacity}
    * @return reserved native endian double value.
@@ -442,6 +463,7 @@ public interface Memory {
    * {@code index}. This method does not modify {@code readerIndex} or {@code writerIndex} of this
    * buffer.
    *
+   * @param dst dst.
    * @param index index.
    * @param dstIndex the first index of the destination
    * @param length the number of bytes to transfer
@@ -858,6 +880,7 @@ public interface Memory {
    * the destination by the number of the transferred bytes while {@link #readBytes(Memory, long,
    * long)} does not.
    *
+   * @param dst dst.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code dst.writableBytes} is greater than {@code
    *     this.readableBytes}
@@ -872,8 +895,11 @@ public interface Memory {
    * except that this method increases the {@code writerIndex} of the destination by the number of
    * the transferred bytes (= {@code length}) while {@link #readBytes(Memory, long, long)} does not.
    *
+   * @param dst dst.
+   * @param length length.
    * @throws IndexOutOfBoundsException if {@code length} is greater than {@code this.readableBytes}
    *     or if {@code length} is greater than {@code dst.writableBytes}
+   * @return returns this instance.
    * @since 1.0.0
    */
   Memory readBytes(Memory dst, long length);
@@ -926,6 +952,7 @@ public interface Memory {
   /**
    * Increases the current {@code readerIndex} by the specified {@code length} in this buffer.
    *
+   * @param length length.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code length} is greater than {@code this.readableBytes}
    * @since 1.0.0
@@ -937,6 +964,7 @@ public interface Memory {
    * writerIndex} by {@code 1} in this buffer. The 24 high-order bits of the specified value are
    * ignored.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 1}
    * @since 1.0.0
@@ -948,6 +976,7 @@ public interface Memory {
    * {@code writerIndex} by {@code 2} in this buffer. The 16 high-order bits of the specified value
    * are ignored.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 2}
    * @since 1.0.0
@@ -959,6 +988,7 @@ public interface Memory {
    * {@code writerIndex} and increases the {@code writerIndex} by {@code 2} in this buffer. The 16
    * high-order bits of the specified value are ignored.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 2}
    * @since 1.0.0
@@ -969,6 +999,7 @@ public interface Memory {
    * Sets the specified 32-bit integer at the current {@code writerIndex} and increases the {@code
    * writerIndex} by {@code 4} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 4}
    * @since 1.0.0
@@ -979,6 +1010,7 @@ public interface Memory {
    * Sets the specified 32-bit integer at the current {@code writerIndex} in the Reserved Native
    * Endian Byte Order and increases the {@code writerIndex} by {@code 4} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 4}
    * @since 1.0.0
@@ -989,6 +1021,7 @@ public interface Memory {
    * Sets the specified 64-bit long integer at the current {@code writerIndex} and increases the
    * {@code writerIndex} by {@code 8} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 8}
    * @since 1.0.0
@@ -999,6 +1032,7 @@ public interface Memory {
    * Sets the specified 64-bit long integer at the current {@code writerIndex} in the Reserved
    * Native Endian Byte Order and increases the {@code writerIndex} by {@code 8} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 8}
    * @since 1.0.0
@@ -1009,6 +1043,7 @@ public interface Memory {
    * Sets the specified 32-bit floating point number at the current {@code writerIndex} and
    * increases the {@code writerIndex} by {@code 4} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 4}
    * @since 1.0.0
@@ -1019,6 +1054,7 @@ public interface Memory {
    * Sets the specified 32-bit floating point number at the current {@code writerIndex} in Reserved
    * Native Endian Byte Order and increases the {@code writerIndex} by {@code 4} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 4}
    * @since 1.0.0
@@ -1029,6 +1065,7 @@ public interface Memory {
    * Sets the specified 64-bit floating point number at the current {@code writerIndex} and
    * increases the {@code writerIndex} by {@code 8} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 8}
    * @since 1.0.0
@@ -1039,6 +1076,7 @@ public interface Memory {
    * Sets the specified 64-bit floating point number at the current {@code writerIndex} in Reserved
    * Native Endian Byte Order and increases the {@code writerIndex} by {@code 8} in this buffer.
    *
+   * @param value value.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code this.writableBytes} is less than {@code 8}
    * @since 1.0.0
@@ -1053,6 +1091,7 @@ public interface Memory {
    * the source buffer by the number of the transferred bytes while {@link #writeBytes(Memory, long,
    * long)} does not.
    *
+   * @param src source.
    * @return this {@link Memory}.
    * @throws IndexOutOfBoundsException if {@code src.readableBytes} is greater than {@code
    *     this.writableBytes}
@@ -1224,6 +1263,7 @@ public interface Memory {
   /**
    * Release this {@link Memory} buffer
    *
+   * @return returns {@code true} if success, {@code false} otherwise.
    * @since 1.0.0
    */
   boolean release();

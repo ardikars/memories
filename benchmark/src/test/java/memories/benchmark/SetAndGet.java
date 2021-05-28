@@ -6,6 +6,7 @@
 
 package memories.benchmark;
 
+import java.nio.ByteBuffer;
 import memories.api.MemoryAllocatorApi;
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
@@ -14,8 +15,6 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-
-import java.nio.ByteBuffer;
 
 public class SetAndGet {
 

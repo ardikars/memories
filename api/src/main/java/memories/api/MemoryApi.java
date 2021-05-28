@@ -26,9 +26,9 @@ class MemoryApi implements Memory {
     BE = MemoryAllocatorApi.NativeMemoryAllocator.nativeByteOrderIsBE();
   }
 
-  private final MemoryAllocator allocator;
   // hold the strong reference object created by asBuffer()
-  private final Map<String, Object> cachingAsBuffer = new HashMap<>();
+  final Map<String, Object> cachingAsBuffer = new HashMap<>();
+  private final MemoryAllocator allocator;
   protected Object buffer;
   protected Thread ownerThread;
   protected long address;
@@ -37,8 +37,8 @@ class MemoryApi implements Memory {
   protected long writerIndex;
   protected long markedReaderIndex;
   protected long markedWriterIndex;
+  PhantomCleaner phantomCleaner;
   private boolean bigEndian;
-  private PhantomCleaner phantomCleaner;
 
   MemoryApi(
       Object buffer,
@@ -68,20 +68,20 @@ class MemoryApi implements Memory {
     return (i << 48) | ((i & 0xffff0000L) << 16) | ((i >>> 16) & 0xffff0000L) | (i >>> 48);
   }
 
-  static int pickPos(int top, int pos) {
-    return BE ? top - pos : pos;
+  static int pickPos(boolean isBe, int top, int pos) {
+    return isBe ? top - pos : pos;
   }
 
-  static byte pick(byte le, byte be) {
-    return BE ? be : le;
+  static byte pick(boolean isBe, byte le, byte be) {
+    return isBe ? be : le;
   }
 
-  static short pick(short le, short be) {
-    return BE ? be : le;
+  static short pick(boolean isBe, short le, short be) {
+    return isBe ? be : le;
   }
 
-  static int pick(int le, int be) {
-    return BE ? be : le;
+  static int pick(boolean isBe, int le, int be) {
+    return isBe ? be : le;
   }
 
   public long capacity() {
@@ -99,6 +99,12 @@ class MemoryApi implements Memory {
     this.phantomCleaner.address = newAddress;
     this.address = newAddress;
     this.capacity = newCapacity;
+    if (readerIndex > capacity) {
+      this.readerIndex = capacity;
+    }
+    if (writerIndex > capacity) {
+      this.writerIndex = capacity;
+    }
     return this;
   }
 
@@ -632,10 +638,8 @@ class MemoryApi implements Memory {
 
   @Override
   public Object as(Class type) {
-    if (MemoryAllocatorApi.HAS_BYTE_BUFFER
-        && type != null
-        && "java.nio.ByteBuffer".equals(type.getName())) {
-      if (capacity > Integer.MAX_VALUE) {
+    if (type != null && "java.nio.ByteBuffer".equals(type.getName())) {
+      if (capacity > 0x7FFFFFFFL) {
         throw new IllegalStateException("Buffer capacity to large.");
       }
       Object obj = cachingAsBuffer.get(type.getName());
@@ -866,8 +870,8 @@ class MemoryApi implements Memory {
     } else {
       value =
           (short)
-              (((NativeMemoryAccess.nativeGetByte(offset) & 0xFF) << pickPos(8, 0))
-                  | ((NativeMemoryAccess.nativeGetByte(offset + 1) & 0xFF) << pickPos(8, 8)));
+              (((NativeMemoryAccess.nativeGetByte(offset) & 0xFF) << pickPos(BE, 8, 0))
+                  | ((NativeMemoryAccess.nativeGetByte(offset + 1) & 0xFF) << pickPos(BE, 8, 8)));
     }
     return bigEndian == BE ? value : shortReverseBytes(value);
   }
@@ -882,14 +886,14 @@ class MemoryApi implements Memory {
       value = NativeMemoryAccess.nativeGetInt(offset);
     } else if ((offset & 1) == 0) {
       value =
-          (NativeMemoryAccess.nativeGetShort(offset) & 0xFFFF) << pickPos(16, 0)
-              | (NativeMemoryAccess.nativeGetShort(offset + 2) & 0xFFFF) << pickPos(16, 16);
+          (NativeMemoryAccess.nativeGetShort(offset) & 0xFFFF) << pickPos(BE, 16, 0)
+              | (NativeMemoryAccess.nativeGetShort(offset + 2) & 0xFFFF) << pickPos(BE, 16, 16);
     } else {
       value =
-          ((NativeMemoryAccess.nativeGetByte(offset) & 0xFF) << pickPos(24, 0)
-              | (NativeMemoryAccess.nativeGetByte(offset + 1) & 0xFF) << pickPos(24, 8)
-              | (NativeMemoryAccess.nativeGetByte(offset + 2) & 0xFF) << pickPos(24, 16)
-              | (NativeMemoryAccess.nativeGetByte(offset + 3) & 0xFF) << pickPos(24, 24));
+          ((NativeMemoryAccess.nativeGetByte(offset) & 0xFF) << pickPos(BE, 24, 0)
+              | (NativeMemoryAccess.nativeGetByte(offset + 1) & 0xFF) << pickPos(BE, 24, 8)
+              | (NativeMemoryAccess.nativeGetByte(offset + 2) & 0xFF) << pickPos(BE, 24, 16)
+              | (NativeMemoryAccess.nativeGetByte(offset + 3) & 0xFF) << pickPos(BE, 24, 24));
     }
     return bigEndian == BE ? value : intReverseBytes(value);
   }
@@ -904,24 +908,25 @@ class MemoryApi implements Memory {
       value = NativeMemoryAccess.nativeGetLong(offset);
     } else if ((offset & 3) == 0) {
       value =
-          ((NativeMemoryAccess.nativeGetInt(offset) & 0xFFFFFFFFL) << pickPos(32, 0))
-              | ((NativeMemoryAccess.nativeGetInt(offset + 4) & 0xFFFFFFFFL) << pickPos(32, 32));
+          ((NativeMemoryAccess.nativeGetInt(offset) & 0xFFFFFFFFL) << pickPos(BE, 32, 0))
+              | ((NativeMemoryAccess.nativeGetInt(offset + 4) & 0xFFFFFFFFL)
+                  << pickPos(BE, 32, 32));
     } else if ((offset & 1) == 0) {
       value =
-          (((NativeMemoryAccess.nativeGetShort(offset) & 0xFFFFL) << pickPos(48, 0))
-              | ((NativeMemoryAccess.nativeGetShort(offset + 2) & 0xFFFFL) << pickPos(48, 16))
-              | ((NativeMemoryAccess.nativeGetShort(offset + 4) & 0xFFFFL) << pickPos(48, 32))
-              | ((NativeMemoryAccess.nativeGetShort(offset + 6) & 0xFFFFL) << pickPos(48, 48)));
+          (((NativeMemoryAccess.nativeGetShort(offset) & 0xFFFFL) << pickPos(BE, 48, 0))
+              | ((NativeMemoryAccess.nativeGetShort(offset + 2) & 0xFFFFL) << pickPos(BE, 48, 16))
+              | ((NativeMemoryAccess.nativeGetShort(offset + 4) & 0xFFFFL) << pickPos(BE, 48, 32))
+              | ((NativeMemoryAccess.nativeGetShort(offset + 6) & 0xFFFFL) << pickPos(BE, 48, 48)));
     } else {
       value =
-          (((NativeMemoryAccess.nativeGetByte(offset) & 0xFFL) << pickPos(56, 0))
-              | ((NativeMemoryAccess.nativeGetByte(offset + 1) & 0xFFL) << pickPos(56, 8))
-              | ((NativeMemoryAccess.nativeGetByte(offset + 2) & 0xFFL) << pickPos(56, 16))
-              | ((NativeMemoryAccess.nativeGetByte(offset + 3) & 0xFFL) << pickPos(56, 24))
-              | ((NativeMemoryAccess.nativeGetByte(offset + 4) & 0xFFL) << pickPos(56, 32))
-              | ((NativeMemoryAccess.nativeGetByte(offset + 5) & 0xFFL) << pickPos(56, 40))
-              | ((NativeMemoryAccess.nativeGetByte(offset + 6) & 0xFFL) << pickPos(56, 48))
-              | ((NativeMemoryAccess.nativeGetByte(offset + 7) & 0xFFL) << pickPos(56, 56)));
+          (((NativeMemoryAccess.nativeGetByte(offset) & 0xFFL) << pickPos(BE, 56, 0))
+              | ((NativeMemoryAccess.nativeGetByte(offset + 1) & 0xFFL) << pickPos(BE, 56, 8))
+              | ((NativeMemoryAccess.nativeGetByte(offset + 2) & 0xFFL) << pickPos(BE, 56, 16))
+              | ((NativeMemoryAccess.nativeGetByte(offset + 3) & 0xFFL) << pickPos(BE, 56, 24))
+              | ((NativeMemoryAccess.nativeGetByte(offset + 4) & 0xFFL) << pickPos(BE, 56, 32))
+              | ((NativeMemoryAccess.nativeGetByte(offset + 5) & 0xFFL) << pickPos(BE, 56, 40))
+              | ((NativeMemoryAccess.nativeGetByte(offset + 6) & 0xFFL) << pickPos(BE, 56, 48))
+              | ((NativeMemoryAccess.nativeGetByte(offset + 7) & 0xFFL) << pickPos(BE, 56, 56)));
     }
     return bigEndian == BE ? value : longReverseBytes(value);
   }
@@ -943,8 +948,8 @@ class MemoryApi implements Memory {
     if ((offset & 1) == 0) {
       NativeMemoryAccess.nativeSetShort(offset, x);
     } else {
-      NativeMemoryAccess.nativeSetByte(offset, pick((byte) x, (byte) (x >>> 8)));
-      NativeMemoryAccess.nativeSetByte(offset + 1, pick((byte) (x >>> 8), (byte) x));
+      NativeMemoryAccess.nativeSetByte(offset, pick(BE, (byte) x, (byte) (x >>> 8)));
+      NativeMemoryAccess.nativeSetByte(offset + 1, pick(BE, (byte) (x >>> 8), (byte) x));
     }
     return this;
   }
@@ -958,13 +963,13 @@ class MemoryApi implements Memory {
     if ((offset & 3) == 0) {
       NativeMemoryAccess.nativeSetInt(offset, x);
     } else if ((offset & 1) == 0) {
-      NativeMemoryAccess.nativeSetShort(offset, pick((short) x, (short) (x >>> 16)));
-      NativeMemoryAccess.nativeSetShort(offset + 2, pick((short) (x >>> 16), (short) x));
+      NativeMemoryAccess.nativeSetShort(offset, pick(BE, (short) x, (short) (x >>> 16)));
+      NativeMemoryAccess.nativeSetShort(offset + 2, pick(BE, (short) (x >>> 16), (short) x));
     } else {
-      NativeMemoryAccess.nativeSetByte(offset, pick((byte) x, (byte) (x >>> 24)));
-      NativeMemoryAccess.nativeSetByte(offset + 1, pick((byte) (x >>> 8), (byte) (x >>> 16)));
-      NativeMemoryAccess.nativeSetByte(offset + 2, pick((byte) (x >>> 16), (byte) (x >>> 8)));
-      NativeMemoryAccess.nativeSetByte(offset + 3, pick((byte) (x >>> 24), (byte) x));
+      NativeMemoryAccess.nativeSetByte(offset, pick(BE, (byte) x, (byte) (x >>> 24)));
+      NativeMemoryAccess.nativeSetByte(offset + 1, pick(BE, (byte) (x >>> 8), (byte) (x >>> 16)));
+      NativeMemoryAccess.nativeSetByte(offset + 2, pick(BE, (byte) (x >>> 16), (byte) (x >>> 8)));
+      NativeMemoryAccess.nativeSetByte(offset + 3, pick(BE, (byte) (x >>> 24), (byte) x));
     }
     return this;
   }
@@ -978,22 +983,24 @@ class MemoryApi implements Memory {
     if ((offset & 7) == 0) {
       NativeMemoryAccess.nativeSetLong(offset, x);
     } else if ((offset & 3) == 0) {
-      NativeMemoryAccess.nativeSetInt(offset, pick((int) x, (int) (x >>> 32)));
-      NativeMemoryAccess.nativeSetInt(offset + 4, pick((int) (x >>> 32), (int) x));
+      NativeMemoryAccess.nativeSetInt(offset, pick(BE, (int) x, (int) (x >>> 32)));
+      NativeMemoryAccess.nativeSetInt(offset + 4, pick(BE, (int) (x >>> 32), (int) x));
     } else if ((offset & 1) == 0) {
-      NativeMemoryAccess.nativeSetShort(offset, pick((short) x, (short) (x >>> 48)));
-      NativeMemoryAccess.nativeSetShort(offset + 2, pick((short) (x >>> 16), (short) (x >>> 32)));
-      NativeMemoryAccess.nativeSetShort(offset + 4, pick((short) (x >>> 32), (short) (x >>> 16)));
-      NativeMemoryAccess.nativeSetShort(offset + 6, pick((short) (x >>> 48), (short) x));
+      NativeMemoryAccess.nativeSetShort(offset, pick(BE, (short) x, (short) (x >>> 48)));
+      NativeMemoryAccess.nativeSetShort(
+          offset + 2, pick(BE, (short) (x >>> 16), (short) (x >>> 32)));
+      NativeMemoryAccess.nativeSetShort(
+          offset + 4, pick(BE, (short) (x >>> 32), (short) (x >>> 16)));
+      NativeMemoryAccess.nativeSetShort(offset + 6, pick(BE, (short) (x >>> 48), (short) x));
     } else {
-      NativeMemoryAccess.nativeSetByte(offset, pick((byte) x, (byte) (x >>> 56)));
-      NativeMemoryAccess.nativeSetByte(offset + 1, pick((byte) (x >>> 8), (byte) (x >>> 48)));
-      NativeMemoryAccess.nativeSetByte(offset + 2, pick((byte) (x >>> 16), (byte) (x >>> 40)));
-      NativeMemoryAccess.nativeSetByte(offset + 3, pick((byte) (x >>> 24), (byte) (x >>> 32)));
-      NativeMemoryAccess.nativeSetByte(offset + 4, pick((byte) (x >>> 32), (byte) (x >>> 24)));
-      NativeMemoryAccess.nativeSetByte(offset + 5, pick((byte) (x >>> 40), (byte) (x >>> 16)));
-      NativeMemoryAccess.nativeSetByte(offset + 6, pick((byte) (x >>> 48), (byte) (x >>> 8)));
-      NativeMemoryAccess.nativeSetByte(offset + 7, pick((byte) (x >>> 56), (byte) x));
+      NativeMemoryAccess.nativeSetByte(offset, pick(BE, (byte) x, (byte) (x >>> 56)));
+      NativeMemoryAccess.nativeSetByte(offset + 1, pick(BE, (byte) (x >>> 8), (byte) (x >>> 48)));
+      NativeMemoryAccess.nativeSetByte(offset + 2, pick(BE, (byte) (x >>> 16), (byte) (x >>> 40)));
+      NativeMemoryAccess.nativeSetByte(offset + 3, pick(BE, (byte) (x >>> 24), (byte) (x >>> 32)));
+      NativeMemoryAccess.nativeSetByte(offset + 4, pick(BE, (byte) (x >>> 32), (byte) (x >>> 24)));
+      NativeMemoryAccess.nativeSetByte(offset + 5, pick(BE, (byte) (x >>> 40), (byte) (x >>> 16)));
+      NativeMemoryAccess.nativeSetByte(offset + 6, pick(BE, (byte) (x >>> 48), (byte) (x >>> 8)));
+      NativeMemoryAccess.nativeSetByte(offset + 7, pick(BE, (byte) (x >>> 56), (byte) x));
     }
     return this;
   }

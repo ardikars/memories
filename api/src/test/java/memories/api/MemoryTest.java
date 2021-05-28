@@ -4,6 +4,7 @@
 
 package memories.api;
 
+import java.nio.ByteBuffer;
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
 import memories.spi.exception.MemoryAccessException;
@@ -23,7 +24,7 @@ public class MemoryTest {
 
   private static final MemoryAllocator allocator = new MemoryAllocatorApi();
 
-  // @Test
+  @Test
   void capacity() {
     Memory largeBuffer = allocator.allocate(LONG_BYTES);
 
@@ -56,6 +57,11 @@ public class MemoryTest {
     Assertions.assertEquals(SHORT_BYTES, largeBuffer.writerIndex());
 
     Assertions.assertThrows(IllegalArgumentException.class, () -> largeBuffer.capacity(-1));
+
+    largeBuffer.setIndex(1, 1).capacity(INTEGER_BYTES);
+    Assertions.assertEquals(INTEGER_BYTES, largeBuffer.capacity());
+    Assertions.assertEquals(1, largeBuffer.readerIndex());
+    Assertions.assertEquals(1, largeBuffer.writerIndex());
 
     Assertions.assertTrue(largeBuffer.release());
   }
@@ -1425,6 +1431,11 @@ public class MemoryTest {
     Assertions.assertFalse(smallBuffer.release());
     Assertions.assertFalse(mediumBuffer.release());
     Assertions.assertFalse(largeBuffer.release());
+
+    ByteBuffer buf = ByteBuffer.allocateDirect(INTEGER_BYTES);
+    Memory wrapped = allocator.wrap(buf);
+    Assertions.assertTrue(wrapped.release());
+    Assertions.assertFalse(wrapped.release());
   }
 
   @Test
@@ -1806,5 +1817,76 @@ public class MemoryTest {
     Assertions.assertEquals(Long.MAX_VALUE, memory.getLong(7));
 
     memory.release();
+  }
+
+  @Test
+  void ownerThread() {
+    Memory memory = allocator.allocate(LONG_BYTES);
+    Assertions.assertTrue(memory.ownerThread() == Thread.currentThread());
+    Thread newThread = new Thread();
+    memory.ownerThread(newThread);
+    Assertions.assertTrue(memory.ownerThread() == newThread);
+    Assertions.assertTrue(memory.release());
+  }
+
+  @Test
+  void as() {
+    Memory memory = allocator.allocate(LONG_BYTES);
+    Object buf = memory.as(ByteBuffer.class);
+    Assertions.assertTrue(buf instanceof ByteBuffer);
+    ByteBuffer bb = (ByteBuffer) buf;
+    Assertions.assertTrue(bb.isDirect());
+    Assertions.assertFalse(bb.isReadOnly());
+
+    Object NULL = null;
+
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            memory.as(String.class);
+          }
+        });
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            memory.as(null);
+          }
+        });
+
+    Assertions.assertTrue(memory.release());
+
+    MemoryApi newMemory = (MemoryApi) allocator.allocate(LONG_BYTES);
+    Object first = newMemory.as(ByteBuffer.class);
+    Object second = newMemory.as(ByteBuffer.class);
+    Assertions.assertTrue(first == second);
+    newMemory.cachingAsBuffer.clear();
+    Assertions.assertNotNull(newMemory.as(ByteBuffer.class));
+
+    newMemory.capacity = 0x7FFFFFFFL + 1L;
+    Assertions.assertThrows(
+        IllegalStateException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            newMemory.as(ByteBuffer.class);
+          }
+        });
+    Assertions.assertTrue(newMemory.release());
+  }
+
+  @Test
+  void pickPos() {
+    Assertions.assertEquals(0, MemoryApi.pickPos(true, 1, 1));
+    Assertions.assertEquals(1, MemoryApi.pickPos(false, 1, 1));
+    Assertions.assertEquals((byte) 2, MemoryApi.pick(true, (byte) 1, (byte) 2));
+    Assertions.assertEquals((byte) 1, MemoryApi.pick(false, (byte) 1, (byte) 2));
+    Assertions.assertEquals((short) 2, MemoryApi.pick(true, (short) 1, (short) 2));
+    Assertions.assertEquals((short) 1, MemoryApi.pick(false, (short) 1, (short) 2));
+    Assertions.assertEquals(2, MemoryApi.pick(true, 1, 2));
+    Assertions.assertEquals(1, MemoryApi.pick(false, 1, 2));
   }
 }

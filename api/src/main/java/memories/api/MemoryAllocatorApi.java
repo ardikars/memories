@@ -19,8 +19,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   static final Set REFS = Collections.synchronizedSet(new HashSet());
   static final ReferenceQueue RQ = new ReferenceQueue();
 
-  static final boolean HAS_BYTE_BUFFER;
-
   static final Memory.ByteOrder NATIVE_BYTE_ORDER;
 
   static {
@@ -30,11 +28,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     String arch = getArch(osArch);
     loadLibrary(getPath(name, arch));
     NATIVE_BYTE_ORDER = byteOrder(NativeMemoryAllocator.nativeByteOrderIsBE());
-    HAS_BYTE_BUFFER = isHasByteBuffer(NativeMemoryAllocator.nativeGetJNIVersion());
-  }
-
-  static boolean isHasByteBuffer(int version) {
-    return version >= 0x00010004;
   }
 
   static Memory.ByteOrder byteOrder(boolean isBE) {
@@ -167,16 +160,10 @@ public class MemoryAllocatorApi implements MemoryAllocator {
 
   @Override
   public Memory wrap(Object buffer, Memory.ByteOrder byteOrder) {
-    if (buffer != null && buffer.getClass().getName().equals("java.nio.DirectByteBuffer")) {
+    String name = buffer == null ? "" : buffer.getClass().getName();
+    if (name.equals("java.nio.DirectByteBuffer")) {
       long memoryAddress = NativeMemoryAllocator.nativeGetDirectBufferAddress(buffer);
       long memoryCapacity = NativeMemoryAllocator.nativeGetDirectBufferCapacity(buffer);
-      if (memoryAddress < 0L) {
-        throw new IllegalStateException("Memory address must be positive value.");
-      }
-      if (memoryAddress == 0L) {
-        throw new IllegalStateException("Memory buffer already closed.");
-      }
-
       Thread ownerThread = Thread.currentThread();
       MemoryApi newBuffer =
           new MemoryApi(buffer, ownerThread, memoryAddress, memoryCapacity, byteOrder, this);
@@ -190,16 +177,20 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     throw new IllegalArgumentException("Unsupported buffer type.");
   }
 
-  void clean() {
+  static void clean() {
     // cleanup native memory when garbage collected.
     MemoryApi.PhantomCleaner cleaned;
     while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
-      if (cleaned.address != 0L) {
-        // force deallocate memory and set address to '0'.
-        NativeMemoryAllocator.nativeFree(cleaned.address);
-        REFS.remove(cleaned);
-        cleaned.address = 0L;
-      }
+      doClean(cleaned);
+    }
+  }
+
+  static void doClean(MemoryApi.PhantomCleaner cleaned) {
+    if (cleaned.address != 0L) {
+      // force deallocate memory and set address to '0'.
+      NativeMemoryAllocator.nativeFree(cleaned.address);
+      REFS.remove(cleaned);
+      cleaned.address = 0L;
     }
   }
 

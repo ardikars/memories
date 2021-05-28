@@ -42,6 +42,12 @@ public class MemoryAllocatorTest {
   }
 
   @Test
+  void allocateThenDeallocateWithZeroing() {
+    allocator.allocate(8, Memory.ByteOrder.BIG_ENDIAN, true).release();
+    allocator.allocate(8, Memory.ByteOrder.BIG_ENDIAN, false).release();
+  }
+
+  @Test
   void checkNull() throws IOException {
     Assertions.assertThrows(
         IOException.class,
@@ -92,6 +98,10 @@ public class MemoryAllocatorTest {
     Assertions.assertEquals("x86_64", MemoryAllocatorApi.getArch("x86_64".toLowerCase()));
     Assertions.assertEquals("x86_64", MemoryAllocatorApi.getArch("amd64".toLowerCase()));
     Assertions.assertEquals("x86_64", MemoryAllocatorApi.getArch("x64".toLowerCase()));
+    Assertions.assertEquals("aarch64", MemoryAllocatorApi.getArch("aarch64".toLowerCase()));
+    Assertions.assertEquals("armhf", MemoryAllocatorApi.getArch("armhf".toLowerCase()));
+    Assertions.assertEquals("armv7", MemoryAllocatorApi.getArch("armv7".toLowerCase()));
+    Assertions.assertEquals("ppc64le", MemoryAllocatorApi.getArch("ppc64".toLowerCase()));
     Assertions.assertEquals(null, MemoryAllocatorApi.getArch("Unknown".toLowerCase()));
   }
 
@@ -109,6 +119,29 @@ public class MemoryAllocatorTest {
   void loadLibrary() {
     MemoryAllocatorApi.loadLibrary(null); // returns immediately
     MemoryAllocatorApi.loadLibrary(""); // returns immediately
+    try {
+      MemoryAllocatorApi.loadLibrary(
+          File.createTempFile("random", "random").getPath()); // returns immediately
+    } catch (IOException e) {
+      //
+    }
+  }
+
+  @Test
+  void clean() {
+    Memory memory = allocator.allocate(8);
+    assert memory.release();
+    memory = null;
+    MemoryApi newMemory = (MemoryApi) allocator.allocate(8);
+    MemoryAllocatorApi.doClean(newMemory.phantomCleaner);
+    newMemory.address = 0L;
+    MemoryAllocatorApi.doClean(newMemory.phantomCleaner);
+  }
+
+  @Test
+  void byteOrder() {
+    assert MemoryAllocatorApi.byteOrder(true) == Memory.ByteOrder.BIG_ENDIAN;
+    assert MemoryAllocatorApi.byteOrder(false) == Memory.ByteOrder.LITTLE_ENDIAN;
   }
 
   @Test
@@ -119,5 +152,30 @@ public class MemoryAllocatorTest {
     Memory memory = allocator.wrap(buf);
     assert 10 == memory.getInt(0);
     assert memory.release(); // release buffer immediately without waiting both buf and memory GC'ed
+
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            allocator.wrap("hello");
+          }
+        });
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            allocator.wrap(ByteBuffer.allocate(8));
+          }
+        });
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            allocator.wrap(null);
+          }
+        });
   }
 }
