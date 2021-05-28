@@ -5,14 +5,13 @@
  */
 package memories.api;
 
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
-import memories.spi.exception.MemoryAccessException;
-
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.HashMap;
 import java.util.Map;
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
+import memories.spi.exception.MemoryAccessException;
 
 class MemoryApi implements Memory {
 

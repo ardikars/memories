@@ -45,12 +45,14 @@ class NegativeTest {
   void doubleFreeOnRefTest() {
     final Memory memory = allocator.allocate(INTEGER_BYTES);
     freeOnMethodRef(memory);
-    Assertions.assertThrows(MemoryAccessException.class, new Executable() {
-      @Override
-      public void execute() throws Throwable {
-        memory.getInt(0);
-      }
-    });
+    Assertions.assertThrows(
+        MemoryAccessException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            memory.getInt(0);
+          }
+        });
     Assertions.assertFalse(memory.release());
   }
 
@@ -69,33 +71,33 @@ class NegativeTest {
       final int finalI = i;
       getterThreads[i] =
           new Thread(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      try {
-                        if (Integer.MAX_VALUE != memories[finalI].getInt(0)) {
-                          throw new AssertionError("Invalid value.");
-                        }
-                      } catch (Throwable e) {
-                        if (!(e instanceof MemoryAccessException)) {
-                          throw new AssertionError(e.getMessage());
-                        }
-                      }
+              new Runnable() {
+                @Override
+                public void run() {
+                  try {
+                    if (Integer.MAX_VALUE != memories[finalI].getInt(0)) {
+                      throw new AssertionError("Invalid value.");
                     }
-                  });
+                  } catch (Throwable e) {
+                    if (!(e instanceof MemoryAccessException)) {
+                      throw new AssertionError(e.getMessage());
+                    }
+                  }
+                }
+              });
     }
     final Thread[] releaseThreads = new Thread[maxThread];
     for (int i = 0; i < releaseThreads.length; i++) {
       final int finalI = i;
       releaseThreads[i] =
           new Thread(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      memories[finalI].release();
-                      counter.incrementAndGet();
-                    }
-                  });
+              new Runnable() {
+                @Override
+                public void run() {
+                  memories[finalI].release();
+                  counter.incrementAndGet();
+                }
+              });
     }
     for (int i = 0; i < maxThread; i++) {
       getterThreads[i].start();
@@ -126,17 +128,17 @@ class NegativeTest {
     for (int i = 0; i < threads.length; i++) {
       threads[i] =
           new Thread(
-                  new Runnable() {
-                    @Override
-                    public void run() {
-                      try {
-                        memory.capacity(memory.capacity() + 1);
-                        counter.incrementAndGet();
-                      } catch (Throwable e) {
-                        Assertions.assertTrue(e instanceof MemoryAccessException);
-                      }
-                    }
-                  });
+              new Runnable() {
+                @Override
+                public void run() {
+                  try {
+                    memory.capacity(memory.capacity() + 1);
+                    counter.incrementAndGet();
+                  } catch (Throwable e) {
+                    Assertions.assertTrue(e instanceof MemoryAccessException);
+                  }
+                }
+              });
     }
     for (int i = 0; i < maxThread; i++) {
       threads[i].start();

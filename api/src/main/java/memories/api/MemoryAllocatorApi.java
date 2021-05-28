@@ -6,14 +6,13 @@
 
 package memories.api;
 
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
-
 import java.io.*;
 import java.lang.ref.ReferenceQueue;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
 
 public class MemoryAllocatorApi implements MemoryAllocator {
 

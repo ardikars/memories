@@ -4,6 +4,9 @@
 
 package memories.api;
 
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
 import org.junit.jupiter.api.Assertions;
@@ -12,10 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 @RunWith(JUnitPlatform.class)
 public class MemoryAllocatorTest {

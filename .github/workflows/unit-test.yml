@@ -50,7 +50,7 @@ jobs:
         run: |
           export JAVA_HOME=$JAVA_HOME
           export JAVA_HOME_JDK2=$JAVA_HOME
-          ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment
+          ./mvnw -t .mvn/toolchains.xml clean package jacoco:report-aggregate -Pdevelopment -Pcoverage -Pformat
         if: matrix.os == 'macos-10.15'
 
       - name: actions/test

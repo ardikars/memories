@@ -17,8 +17,7 @@ SPDX-License-Identifier: Apache-2.0
     <artifactId>benchmark</artifactId>
 
     <properties>
-        <jdk.version>${java.version}</jdk.version>
-        <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
+        <jdk.version>${java.version}</jdk.version><sonar.coverage.jacoco.xmlReportPaths>${basedir}/../${aggregate.report.dir}</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencies>

@@ -1,10 +1,9 @@
 package memories.benchmark;
 
+import java.nio.ByteBuffer;
 import memories.api.MemoryAllocatorApi;
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
-
-import java.nio.ByteBuffer;
 
 public class Sample {
 
