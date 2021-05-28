@@ -7,17 +7,17 @@ name: Unit Test
 on:
   push:
     branches:
-      - development-skip
+      - development
   pull_request:
     branches:
-      - development-skip
+      - development
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-10.15', 'ubuntu-16.04', 'ubuntu-18.04', 'ubuntu-20.04', 'windows-2016', 'windows-2019']
+        os: ['macos-10.15', 'ubuntu-18.04', 'ubuntu-20.04', 'windows-2016', 'windows-2019']
         java: [ '8', '9', '10', '11', '12', '13', '14', '15' ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -60,4 +60,4 @@ jobs:
           sudo apt-get install musl-dev
           sudo ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1
           ./mvnw -t .mvn/toolchains.xml clean test -Pdevelopment
-        if: matrix.os == 'ubuntu-16.04' || matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
+        if: matrix.os == matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'

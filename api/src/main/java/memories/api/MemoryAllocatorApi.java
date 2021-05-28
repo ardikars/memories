@@ -30,14 +30,11 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     String arch = getArch(osArch);
     loadLibrary(getPath(name, arch));
     NATIVE_BYTE_ORDER = byteOrder(NativeMemoryAllocator.nativeByteOrderIsBE());
-    boolean hasByteBuffer;
-    try {
-      Class.forName("java.nio.ByteBuffer");
-      hasByteBuffer = true;
-    } catch (ClassNotFoundException e) {
-      hasByteBuffer = false;
-    }
-    HAS_BYTE_BUFFER = hasByteBuffer;
+    HAS_BYTE_BUFFER = isHasByteBuffer(NativeMemoryAllocator.nativeGetJNIVersion());
+  }
+
+  static boolean isHasByteBuffer(int version) {
+    return version >= 0x00010004;
   }
 
   static Memory.ByteOrder byteOrder(boolean isBE) {
@@ -223,5 +220,7 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     static native long nativeGetDirectBufferCapacity(Object buffer);
 
     static native void nativeCleanDirectByteBuffer(Object buffer);
+
+    static native int nativeGetJNIVersion();
   }
 }

@@ -55,6 +55,10 @@ JNIEXPORT void nativeCleanDirectByteBuffer(JNIEnv *env, jclass UNUSED(j_cls), jo
   }
 }
 
+JNIEXPORT int nativeGetJNIVersion(JNIEnv * UNUSED_ENV(env), jclass UNUSED(j_cls)) {
+  return VERSION;
+}
+
 int memory_allocator_register_native_methods(JNIEnv *env) {
   jclass cls;
   if ((cls = (*env)->FindClass(env, "memories/api/MemoryAllocatorApi$NativeMemoryAllocator")) == NULL) {
@@ -69,7 +73,8 @@ int memory_allocator_register_native_methods(JNIEnv *env) {
     {"nativeRealloc","(JJ)J",(void *) nativeRealloc},
     {"nativeGetDirectBufferAddress","(Ljava/lang/Object;)J",(void *) nativeGetDirectBufferAddress},
     {"nativeGetDirectBufferCapacity","(Ljava/lang/Object;)J",(void *) nativeGetDirectBufferCapacity},
-    {"nativeCleanDirectByteBuffer","(Ljava/lang/Object;)V",(void *) nativeCleanDirectByteBuffer}
+    {"nativeCleanDirectByteBuffer","(Ljava/lang/Object;)V",(void *) nativeCleanDirectByteBuffer},
+    {"nativeGetJNIVersion","()I",(void *) nativeGetJNIVersion}
   };
   return (*env)->RegisterNatives(env, cls, methods, sizeof(methods) / sizeof(methods[0]));
 }
