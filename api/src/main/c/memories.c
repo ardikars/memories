@@ -7,6 +7,34 @@
 #include <jni.h>
 #include <memories.h>
 
+#ifndef JNI_VERSION_1_1
+#define JNI_VERSION_1_1 0x00010001
+#endif
+
+#ifndef JNI_VERSION_1_2
+#define JNI_VERSION_1_2 0x00010002
+#endif
+
+#ifndef JNI_VERSION_1_4
+#define JNI_VERSION_1_4 0x00010004
+#endif
+
+#ifndef JNI_VERSION_1_6
+#define JNI_VERSION_1_6 0x00010006
+#endif
+
+#ifndef JNI_VERSION_1_8
+#define JNI_VERSION_1_8 0x00010008
+#endif
+
+#ifndef JNI_VERSION_9
+#define JNI_VERSION_9   0x00090000
+#endif
+
+#ifndef JNI_VERSION_10
+#define JNI_VERSION_10  0x000a0000
+#endif
+
 jint VERSION;
 jclass CLEANER;
 jfieldID CLEANER_FID;
@@ -35,7 +63,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
       fflush(stderr);
       return JNI_ERR;
     }
-    if (VERSION <= 0x00010008) {
+    if (VERSION <= JNI_VERSION_1_8) {
       /* sun.misc */
       if ((CLEANER = (*env)->FindClass(env, "sun/misc/Cleaner")) == NULL) {
         fprintf(stderr, "FATAL: Class sun.misc.Cleaner not found.");
