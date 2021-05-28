@@ -642,10 +642,11 @@ class MemoryApi implements Memory {
       if (capacity > 0x7FFFFFFFL) {
         throw new IllegalStateException("Buffer capacity to large.");
       }
-      Object obj = cachingAsBuffer.get(type.getName());
+      String key = type.getName() + ":" + address + ":" + capacity;
+      Object obj = cachingAsBuffer.get(key);
       if (obj == null) {
         Object buffer = NativeMemoryAccess.nativeWrapToDirectByteBuffer(address, capacity);
-        cachingAsBuffer.put(type.getName(), buffer);
+        cachingAsBuffer.put(key, buffer);
         return buffer;
       } else {
         return obj;
