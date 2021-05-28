@@ -20,7 +20,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
   static final ReferenceQueue RQ = new ReferenceQueue();
 
   static final boolean HAS_BYTE_BUFFER;
-  static final int JAVA_MAJOR_VERSION;
 
   static final Memory.ByteOrder NATIVE_BYTE_ORDER;
 
@@ -39,20 +38,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       hasByteBuffer = false;
     }
     HAS_BYTE_BUFFER = hasByteBuffer;
-    int javaMajorVersion;
-    final String[] components =
-        System.getProperty("java.specification.version", "1.6").split("\\.");
-    final int[] version = new int[components.length];
-    for (int i = 0; i < components.length; i++) {
-      version[i] = Integer.parseInt(components[i]);
-    }
-    if (version[0] == 1) {
-      assert version[1] >= 6;
-      javaMajorVersion = version[1];
-    } else {
-      javaMajorVersion = version[0];
-    }
-    JAVA_MAJOR_VERSION = javaMajorVersion;
   }
 
   static Memory.ByteOrder byteOrder(boolean isBE) {
@@ -237,6 +222,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
 
     static native long nativeGetDirectBufferCapacity(Object buffer);
 
-    static native void nativeCleanDirectByteBuffer(int jver, Object buffer);
+    static native void nativeCleanDirectByteBuffer(Object buffer);
   }
 }

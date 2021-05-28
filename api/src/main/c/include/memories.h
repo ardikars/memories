@@ -65,6 +65,11 @@
   #define STRDUP strdup
 #endif
 
+extern jint VERSION;
+extern jclass CLEANER;
+extern jfieldID CLEANER_FID;
+extern jmethodID CLEAN_MID;
+
 int memory_register_native_methods(JNIEnv *env);
 
 int memory_allocator_register_native_methods(JNIEnv *env);

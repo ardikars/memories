@@ -48,42 +48,17 @@ JNIEXPORT jlong nativeGetDirectBufferCapacity(JNIEnv *env, jclass UNUSED(j_cls),
   return (jlong) (*env)->GetDirectBufferCapacity(env, jbuf);
 }
 
-JNIEXPORT void nativeCleanDirectByteBuffer(JNIEnv *env, jclass UNUSED(j_cls), jint j_ver, jobject jbuf) {
-  jclass the_class;
-  jfieldID the_fid;
-  if ((the_class = (*env)->FindClass(env, "java/nio/DirectByteBuffer")) == NULL) {
-    fprintf(stderr, "FATAL: Class java.nio.DirectByteBuffer not found");
-    fflush(stderr);
-    return;
+JNIEXPORT void nativeCleanDirectByteBuffer(JNIEnv *env, jclass UNUSED(j_cls), jobject jbuf) {
+  if (VERSION > JNI_VERSION_1_4) {
+    jobject the_cleaner = (*env)->GetObjectField(env, jbuf, CLEANER_FID);
+    (*env)->CallVoidMethod(env, the_cleaner, CLEAN_MID);
   }
-  if (j_ver > 8) {
-    if ((the_fid = (*env)->GetFieldID(env, the_class, "cleaner", "Ljdk/internal/ref/Cleaner;")) == NULL) {
-      fprintf(stderr, "FATAL: Field cleaner not found in java.nio.DirectByteBuffer");
-      fflush(stderr);
-      return;
-    }
-  } else {
-    if ((the_fid = (*env)->GetFieldID(env, the_class, "cleaner", "Lsun/misc/Cleaner;")) == NULL) {
-      fprintf(stderr, "FATAL: Field cleaner not found in java.nio.DirectByteBuffer");
-      fflush(stderr);
-      return;
-    }
-  }
-  jobject the_cleaner = (*env)->GetObjectField(env, jbuf, the_fid);
-  if (the_class == NULL) {
-    fprintf(stderr, "FATAL: Field cleaner is NULL in java.nio.DirectByteBuffer");
-    fflush(stderr);
-    return;
-  }
-  jclass the_cleaner_cls = (*env)->GetObjectClass(env, the_cleaner);
-  jmethodID the_clean_mid = (*env)->GetMethodID(env, the_cleaner_cls, "clean", "()V");
-  (*env)->CallVoidMethod(env, the_cleaner, the_clean_mid);
 }
 
 int memory_allocator_register_native_methods(JNIEnv *env) {
   jclass cls;
   if ((cls = (*env)->FindClass(env, "memories/api/MemoryAllocatorApi$NativeMemoryAllocator")) == NULL) {
-    fprintf(stderr, "FATAL: Class memories.api.MemoryAllocatorApi$NativeMemoryAllocator not found");
+    fprintf(stderr, "FATAL: Class memories.api.MemoryAllocatorApi$NativeMemoryAllocator not found.");
     fflush(stderr);
     return JNI_ERR;
   }
@@ -94,7 +69,7 @@ int memory_allocator_register_native_methods(JNIEnv *env) {
     {"nativeRealloc","(JJ)J",(void *) nativeRealloc},
     {"nativeGetDirectBufferAddress","(Ljava/lang/Object;)J",(void *) nativeGetDirectBufferAddress},
     {"nativeGetDirectBufferCapacity","(Ljava/lang/Object;)J",(void *) nativeGetDirectBufferCapacity},
-    {"nativeCleanDirectByteBuffer","(ILjava/lang/Object;)V",(void *) nativeCleanDirectByteBuffer}
+    {"nativeCleanDirectByteBuffer","(Ljava/lang/Object;)V",(void *) nativeCleanDirectByteBuffer}
   };
   return (*env)->RegisterNatives(env, cls, methods, sizeof(methods) / sizeof(methods[0]));
 }

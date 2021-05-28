@@ -70,7 +70,7 @@ UNSAFE(Double, jdouble);
 int memory_register_native_methods(JNIEnv *env) {
   jclass cls;
   if ((cls = (*env)->FindClass(env, "memories/api/MemoryApi$NativeMemoryAccess")) == NULL) {
-    fprintf(stderr, "FATAL: Class memories.api.MemoryApi$NativeMemoryAccess not found");
+    fprintf(stderr, "FATAL: Class memories.api.MemoryApi$NativeMemoryAccess not found.");
     fflush(stderr);
     return JNI_ERR;
   }

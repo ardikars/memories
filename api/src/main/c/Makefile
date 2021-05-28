@@ -38,3 +38,5 @@ win64:
 win32:
 	rm -f ${TARGET}-x86_64/memories.jnilib
 	$(CC) ${LIBRARY_FLAGS} -m32 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86/memories.jnilib memories.c memory.c memory_allocator.c
+
+# find . -type f -name "*.jnilib" -delete

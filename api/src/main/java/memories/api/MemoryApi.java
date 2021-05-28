@@ -1035,8 +1035,7 @@ class MemoryApi implements Memory {
   // @Override
   public boolean release() {
     if (phantomCleaner.type == PhantomCleaner.TYPE_NIO && phantomCleaner.address > 0) {
-      MemoryAllocatorApi.NativeMemoryAllocator.nativeCleanDirectByteBuffer(
-          MemoryAllocatorApi.JAVA_MAJOR_VERSION, buffer);
+      MemoryAllocatorApi.NativeMemoryAllocator.nativeCleanDirectByteBuffer(buffer);
       address = 0L;
       phantomCleaner.address = 0L;
       return true;
