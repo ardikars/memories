@@ -49,7 +49,7 @@ JNIEXPORT jlong nativeGetDirectBufferCapacity(JNIEnv *env, jclass UNUSED(j_cls),
 }
 
 JNIEXPORT void nativeCleanDirectByteBuffer(JNIEnv *env, jclass UNUSED(j_cls), jobject jbuf) {
-  if (VERSION > JNI_VERSION_1_4) {
+  if (VERSION >= JNI_VERSION_1_4) {
     jobject the_cleaner = (*env)->GetObjectField(env, jbuf, CLEANER_FID);
     (*env)->CallVoidMethod(env, the_cleaner, CLEAN_MID);
   }
