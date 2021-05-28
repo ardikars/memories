@@ -8,11 +8,14 @@ package memories.benchmark;
 
 import memories.api.MemoryAllocatorApi;
 import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+
+import java.nio.ByteBuffer;
 
 public class SetAndGet {
 
@@ -21,8 +24,36 @@ public class SetAndGet {
     new Runner(opt).run();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
+  @Benchmark
+  public void jniMallocAndFree(ExecutionPlan plan) {
+    MemoryAllocator allocator = new MemoryAllocatorApi();
+    for (int i = 1; i <= plan.iterations; i++) {
+      allocator.allocate(i).release();
+    }
+    for (int i = plan.iterations; i >= 1; i--) {
+      allocator.allocate(i).release();
+    }
+  }
+
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
+  @Benchmark
+  public void jniReleaseDirectByteBuffer(ExecutionPlan plan) {
+    MemoryAllocator allocator = new MemoryAllocatorApi();
+    for (int i = 1; i <= plan.iterations; i++) {
+      ByteBuffer buf = ByteBuffer.allocateDirect(i);
+      allocator.wrap(buf).release();
+    }
+    for (int i = plan.iterations; i >= 1; i--) {
+      ByteBuffer buf = ByteBuffer.allocateDirect(i);
+      allocator.wrap(buf).release();
+    }
+  }
+
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniGetByte(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -31,8 +62,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniSetByte(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -41,8 +72,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniGetShort(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -51,8 +82,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniSetShort(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -61,8 +92,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniGetInt(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -71,8 +102,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniSetInt(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -81,8 +112,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniGetLong(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -91,8 +122,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniSetLong(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -101,8 +132,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniGetFloat(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -111,8 +142,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniSetFloat(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -121,8 +152,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniGetDouble(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -131,8 +162,8 @@ public class SetAndGet {
     plan.jniMemory.release();
   }
 
-  @Warmup(iterations = 2) // Warmup Iteration = 3
-  @Measurement(iterations = 3)
+  @Warmup() // Warmup Iteration = 3
+  @Measurement()
   @Benchmark
   public void jniSetDouble(ExecutionPlan plan) {
     for (int i = 0; i < plan.iterations; i++) {
@@ -144,7 +175,7 @@ public class SetAndGet {
   @State(Scope.Benchmark)
   public static class ExecutionPlan {
 
-    @Param({"100", "200"})
+    @Param({"1000000", "10000000", "100000000", "1000000000"})
     public int iterations;
 
     public Memory jniMemory;
