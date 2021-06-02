@@ -15,7 +15,7 @@ class NegativeTest {
 
   private static final int INTEGER_BYTES = 4;
 
-  private static final MemoryAllocator allocator = new MemoryAllocatorApi();
+  private static final MemoryAllocator allocator = MemoryAllocatorApi.getInstance();
 
   static void methodRef1(Memory memory) {
     //

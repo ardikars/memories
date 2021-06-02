@@ -6,20 +6,22 @@
 
 package memories.api;
 
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
+
 import java.io.*;
 import java.lang.ref.ReferenceQueue;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
 
 public class MemoryAllocatorApi implements MemoryAllocator {
 
   static final Set REFS = Collections.synchronizedSet(new HashSet());
   static final ReferenceQueue RQ = new ReferenceQueue();
-
   static final Memory.ByteOrder NATIVE_BYTE_ORDER;
+
+  private static final MemoryAllocatorApi INSTANCE = new MemoryAllocatorApi();
 
   static {
     final String osName = System.getProperty("os.name").toUpperCase().trim();
@@ -28,6 +30,14 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     String arch = getArch(osArch);
     loadLibrary(getPath(name, arch));
     NATIVE_BYTE_ORDER = byteOrder(NativeMemoryAllocator.nativeByteOrderIsBE());
+  }
+
+  private MemoryAllocatorApi() {
+    //
+  }
+
+  public static MemoryAllocator getInstance() {
+    return INSTANCE;
   }
 
   static Memory.ByteOrder byteOrder(boolean isBE) {
@@ -129,6 +139,23 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     }
   }
 
+  static void clean() {
+    // cleanup native memory when garbage collected.
+    MemoryApi.PhantomCleaner cleaned;
+    while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
+      doClean(cleaned);
+    }
+  }
+
+  static void doClean(MemoryApi.PhantomCleaner cleaned) {
+    if (cleaned.address != 0L) {
+      // force deallocate memory and set address to '0'.
+      NativeMemoryAllocator.nativeFree(cleaned.address);
+      REFS.remove(cleaned);
+      cleaned.address = 0L;
+    }
+  }
+
   public Memory allocate(long size) {
     return allocate(size, Memory.ByteOrder.BIG_ENDIAN);
   }
@@ -175,23 +202,6 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       return newBuffer;
     }
     throw new IllegalArgumentException("Unsupported buffer type.");
-  }
-
-  static void clean() {
-    // cleanup native memory when garbage collected.
-    MemoryApi.PhantomCleaner cleaned;
-    while ((cleaned = (MemoryApi.PhantomCleaner) RQ.poll()) != null) {
-      doClean(cleaned);
-    }
-  }
-
-  static void doClean(MemoryApi.PhantomCleaner cleaned) {
-    if (cleaned.address != 0L) {
-      // force deallocate memory and set address to '0'.
-      NativeMemoryAllocator.nativeFree(cleaned.address);
-      REFS.remove(cleaned);
-      cleaned.address = 0L;
-    }
   }
 
   static final class NativeMemoryAllocator {

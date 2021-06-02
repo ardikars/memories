@@ -22,7 +22,7 @@ public class MemoryTest {
   private static final int INTEGER_BYTES = 4;
   private static final int LONG_BYTES = 8;
 
-  private static final MemoryAllocator allocator = new MemoryAllocatorApi();
+  private static final MemoryAllocator allocator = MemoryAllocatorApi.getInstance();
 
   @Test
   void capacity() {

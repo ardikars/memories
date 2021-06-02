@@ -27,7 +27,7 @@ public class SetAndGet {
   @Measurement()
   @Benchmark
   public void jniMallocAndFree(ExecutionPlan plan) {
-    MemoryAllocator allocator = new MemoryAllocatorApi();
+    MemoryAllocator allocator = MemoryAllocatorApi.getInstance();
     for (int i = 1; i <= plan.iterations; i++) {
       allocator.allocate(i).release();
     }
@@ -40,7 +40,7 @@ public class SetAndGet {
   @Measurement()
   @Benchmark
   public void jniReleaseDirectByteBuffer(ExecutionPlan plan) {
-    MemoryAllocator allocator = new MemoryAllocatorApi();
+    MemoryAllocator allocator = MemoryAllocatorApi.getInstance();
     for (int i = 1; i <= plan.iterations; i++) {
       ByteBuffer buf = ByteBuffer.allocateDirect(i);
       allocator.wrap(buf).release();
@@ -181,7 +181,7 @@ public class SetAndGet {
 
     @Setup(Level.Invocation)
     public void setUp() {
-      jniMemory = new MemoryAllocatorApi().allocate(8);
+      jniMemory = MemoryAllocatorApi.getInstance().allocate(8);
     }
   }
 }

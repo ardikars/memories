@@ -23,7 +23,7 @@ public class MemoryAllocatorTest {
 
   @BeforeEach
   void setUp() {
-    allocator = new MemoryAllocatorApi();
+    allocator = MemoryAllocatorApi.getInstance();
   }
 
   @Test

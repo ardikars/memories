@@ -8,7 +8,7 @@ import memories.spi.MemoryAllocator;
 public class Sample {
 
   public static void main(String[] args) {
-    final MemoryAllocator allocator = new MemoryAllocatorApi();
+    final MemoryAllocator allocator = MemoryAllocatorApi.getInstance();
     readWrite(allocator);
     wrapDirectByteBuffer(allocator);
     asBuffer(allocator);
