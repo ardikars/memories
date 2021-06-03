@@ -9,11 +9,13 @@
 
 .idea
 target
-jni/src/main/c/include/memories_jni_JNIMemory_Unsafe.h
-jni/src/main/c/include/memories_jni_JNIMemoryAllocator_Unsafe.h
-jni/target
-jni/CMakeFiles
-jni/CMakeCache.txt
-jni/cmake_install.cmake
-jni/Makefile
+api/src/main/c/include/memories_jni_JNIMemory_Unsafe.h
+api/src/main/c/include/memories_jni_JNIMemoryAllocator_Unsafe.h
+api/target
+api/CMakeFiles
+api/CMakeCache.txt
+api/cmake_install.cmake
+api/Makefile
+benchmark/target
+benchmark/dependency-reduced-pom.xml
 spi/target
