@@ -1477,15 +1477,111 @@ public class MemoryTest {
   }
 
   @Test
-  public void setAndGetLongByteOrder() {
-    Memory longBE = allocator.allocate(8, Memory.ByteOrder.BIG_ENDIAN);
-    longBE.setLong(0, 20);
-    Assertions.assertEquals(20, longBE.getLong(0));
+  public void setAndGetFloatByteOrder() {
+    float value = 23.4534F;
+    Memory intBE = allocator.allocate(8, Memory.ByteOrder.BIG_ENDIAN);
+    intBE.setFloat(0, value);
+    Assertions.assertEquals(value, intBE.getFloat(0));
+    intBE.setFloat(1, value);
+    Assertions.assertEquals(value, intBE.getFloat(1));
+    intBE.setFloat(2, value);
+    Assertions.assertEquals(value, intBE.getFloat(2));
+    intBE.setFloat(3, value);
+    Assertions.assertEquals(value, intBE.getFloat(3));
+    intBE.release();
+
+    Memory intLE = allocator.allocate(8, Memory.ByteOrder.LITTLE_ENDIAN);
+    intLE.setFloat(0, value);
+    Assertions.assertEquals(value, intLE.getFloat(0));
+    intLE.setFloat(1, value);
+    Assertions.assertEquals(value, intLE.getFloat(1));
+    intLE.setFloat(2, value);
+    Assertions.assertEquals(value, intLE.getFloat(2));
+    intLE.setFloat(3, value);
+    Assertions.assertEquals(value, intLE.getFloat(3));
+    intLE.release();
+  }
+
+  @Test
+  public void setAndGetDoubleByteOrder() {
+    double value = 24.344D;
+    Memory longBE = allocator.allocate(16, Memory.ByteOrder.BIG_ENDIAN);
+    longBE.setDouble(0, value);
+    Assertions.assertEquals(value, longBE.getDouble(0));
+    longBE.setDouble(1, value);
+    Assertions.assertEquals(value, longBE.getDouble(1));
+    longBE.setDouble(2, value);
+    Assertions.assertEquals(value, longBE.getDouble(2));
+    longBE.setDouble(3, value);
+    Assertions.assertEquals(value, longBE.getDouble(3));
+    longBE.setDouble(4, value);
+    Assertions.assertEquals(value, longBE.getDouble(4));
+    longBE.setDouble(5, value);
+    Assertions.assertEquals(value, longBE.getDouble(5));
+    longBE.setDouble(6, value);
+    Assertions.assertEquals(value, longBE.getDouble(6));
+    longBE.setDouble(7, value);
+    Assertions.assertEquals(value, longBE.getDouble(7));
     longBE.release();
 
-    Memory longLE = allocator.allocate(8, Memory.ByteOrder.LITTLE_ENDIAN);
+    Memory longLE = allocator.allocate(16, Memory.ByteOrder.LITTLE_ENDIAN);
+    longLE.setDouble(0, value);
+    Assertions.assertEquals(value, longLE.getDouble(0));
+    longLE.setDouble(1, value);
+    Assertions.assertEquals(value, longLE.getDouble(1));
+    longLE.setDouble(2, value);
+    Assertions.assertEquals(value, longLE.getDouble(2));
+    longLE.setDouble(3, value);
+    Assertions.assertEquals(value, longLE.getDouble(3));
+    longLE.setDouble(4, value);
+    Assertions.assertEquals(value, longLE.getDouble(4));
+    longLE.setDouble(5, value);
+    Assertions.assertEquals(value, longLE.getDouble(5));
+    longLE.setDouble(6, value);
+    Assertions.assertEquals(value, longLE.getDouble(6));
+    longLE.setDouble(7, value);
+    Assertions.assertEquals(value, longLE.getDouble(7));
+    longLE.release();
+  }
+
+  @Test
+  public void setAndGetLongByteOrder() {
+    Memory longBE = allocator.allocate(16, Memory.ByteOrder.BIG_ENDIAN);
+    longBE.setLong(0, 20);
+    Assertions.assertEquals(20, longBE.getLong(0));
+    longBE.setLong(1, 20);
+    Assertions.assertEquals(20, longBE.getLong(1));
+    longBE.setLong(2, 20);
+    Assertions.assertEquals(20, longBE.getLong(2));
+    longBE.setLong(3, 20);
+    Assertions.assertEquals(20, longBE.getLong(3));
+    longBE.setLong(4, 20);
+    Assertions.assertEquals(20, longBE.getLong(4));
+    longBE.setLong(5, 20);
+    Assertions.assertEquals(20, longBE.getLong(5));
+    longBE.setLong(6, 20);
+    Assertions.assertEquals(20, longBE.getLong(6));
+    longBE.setLong(7, 20);
+    Assertions.assertEquals(20, longBE.getLong(7));
+    longBE.release();
+
+    Memory longLE = allocator.allocate(16, Memory.ByteOrder.LITTLE_ENDIAN);
     longLE.setLong(0, 20);
     Assertions.assertEquals(20, longLE.getLong(0));
+    longLE.setLong(1, 20);
+    Assertions.assertEquals(20, longLE.getLong(1));
+    longLE.setLong(2, 20);
+    Assertions.assertEquals(20, longLE.getLong(2));
+    longLE.setLong(3, 20);
+    Assertions.assertEquals(20, longLE.getLong(3));
+    longLE.setLong(4, 20);
+    Assertions.assertEquals(20, longLE.getLong(4));
+    longLE.setLong(5, 20);
+    Assertions.assertEquals(20, longLE.getLong(5));
+    longLE.setLong(6, 20);
+    Assertions.assertEquals(20, longLE.getLong(6));
+    longLE.setLong(7, 20);
+    Assertions.assertEquals(20, longLE.getLong(7));
     longLE.release();
   }
 
@@ -1494,11 +1590,23 @@ public class MemoryTest {
     Memory intBE = allocator.allocate(8, Memory.ByteOrder.BIG_ENDIAN);
     intBE.setInt(0, 20);
     Assertions.assertEquals(20, intBE.getInt(0));
+    intBE.setInt(1, 20);
+    Assertions.assertEquals(20, intBE.getInt(1));
+    intBE.setInt(2, 20);
+    Assertions.assertEquals(20, intBE.getInt(2));
+    intBE.setInt(3, 20);
+    Assertions.assertEquals(20, intBE.getInt(3));
     intBE.release();
 
     Memory intLE = allocator.allocate(8, Memory.ByteOrder.LITTLE_ENDIAN);
     intLE.setInt(0, 20);
     Assertions.assertEquals(20, intLE.getInt(0));
+    intLE.setInt(1, 20);
+    Assertions.assertEquals(20, intLE.getInt(1));
+    intLE.setInt(2, 20);
+    Assertions.assertEquals(20, intLE.getInt(2));
+    intLE.setInt(3, 20);
+    Assertions.assertEquals(20, intLE.getInt(3));
     intLE.release();
   }
 
@@ -1507,11 +1615,15 @@ public class MemoryTest {
     Memory shortBE = allocator.allocate(8, Memory.ByteOrder.BIG_ENDIAN);
     shortBE.setShort(0, 20);
     Assertions.assertEquals(20, shortBE.getShort(0));
+    shortBE.setShort(1, 20);
+    Assertions.assertEquals(20, shortBE.getShort(1));
     shortBE.release();
 
     Memory shortLE = allocator.allocate(8, Memory.ByteOrder.LITTLE_ENDIAN);
     shortLE.setShort(0, 20);
     Assertions.assertEquals(20, shortLE.getShort(0));
+    shortLE.setShort(1, 20);
+    Assertions.assertEquals(20, shortLE.getShort(1));
     shortLE.release();
   }
 
