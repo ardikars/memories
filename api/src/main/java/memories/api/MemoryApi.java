@@ -5,13 +5,14 @@
  */
 package memories.api;
 
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
+import memories.spi.exception.MemoryAccessException;
+
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.HashMap;
 import java.util.Map;
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
-import memories.spi.exception.MemoryAccessException;
 
 class MemoryApi implements Memory {
 
@@ -27,7 +28,7 @@ class MemoryApi implements Memory {
   }
 
   // hold the strong reference object created by asBuffer()
-  final Map<String, Object> cachingAsBuffer = new HashMap<>();
+  final Map cachingAsBuffer = new HashMap();
   private final MemoryAllocator allocator;
   protected Object buffer;
   protected Thread ownerThread;
@@ -625,18 +626,18 @@ class MemoryApi implements Memory {
     return this;
   }
 
-  @Override
+  // @Override
   public Thread ownerThread() {
     return ownerThread;
   }
 
-  @Override
+  // @Override
   public Memory ownerThread(Thread thread) {
     this.ownerThread = thread;
     return this;
   }
 
-  @Override
+  // @Override
   public Object as(Class type) {
     if (type != null && "java.nio.ByteBuffer".equals(type.getName())) {
       if (capacity > 0x7FFFFFFFL) {

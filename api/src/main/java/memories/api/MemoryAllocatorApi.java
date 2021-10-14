@@ -69,7 +69,7 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       return "armhf";
     } else if ("armv7".equals(osArch)) {
       return "armv7";
-    } else if (osArch.contains("ppc64")) {
+    } else if (osArch.startsWith("ppc64")) {
       return "ppc64le";
     }
     return null;
@@ -179,12 +179,12 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     return buffer;
   }
 
-  @Override
+  // @Override
   public Memory wrap(Object buffer) {
     return wrap(buffer, NATIVE_BYTE_ORDER);
   }
 
-  @Override
+  // @Override
   public Memory wrap(Object buffer, Memory.ByteOrder byteOrder) {
     String name = buffer == null ? "" : buffer.getClass().getName();
     if (name.equals("java.nio.DirectByteBuffer")) {
