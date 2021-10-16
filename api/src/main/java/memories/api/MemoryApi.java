@@ -641,7 +641,7 @@ class MemoryApi implements Memory {
   public Object as(Class type) {
     if (type != null && "java.nio.ByteBuffer".equals(type.getName())) {
       if (capacity > 0x7FFFFFFFL) {
-        throw new IllegalStateException("Buffer capacity to large.");
+        throw new IllegalStateException("Buffer capacity too large.");
       }
       String key = type.getName() + ":" + address + ":" + capacity;
       Object obj = cachingAsBuffer.get(key);
