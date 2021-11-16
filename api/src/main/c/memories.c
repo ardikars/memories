@@ -43,7 +43,7 @@ jmethodID CLEAN_MID;
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {
   JNIEnv* env = NULL;
   if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_2) != JNI_OK) {
-    fprintf(stderr, "FATAL: JNI version missmatch.");
+    fprintf(stderr, "FATAL: JNI version mismatch.");
     fflush(stderr);
     return JNI_ERR;
   }
