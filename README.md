@@ -7,6 +7,20 @@ SPDX-License-Identifier: Apache-2.0
 
 *) NOT READY FOR PRODUCTION YET
 
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ardikars_memories&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=ardikars_memories)
+
+
 ## About this project
 
 Off-heap (Native) memory access for Java. Compatible with the old version of Java and not using `sun.misc.Unsafe`.
@@ -16,10 +30,15 @@ Off-heap (Native) memory access for Java. Compatible with the old version of Jav
 
 * netty-buffer API.
 
-* foreign-memory-access by project Panama.
+* foreign-memory-access by Project Panama.
 
 
 ### Usage
+
+```
+Note: Musl is required (malloc with musl is slow); consider to use mimaloc/jemalloc/others.
+```
+
 
 * Allocate a block of memory
 

@@ -5,14 +5,13 @@
  */
 package memories.api;
 
-import memories.spi.Memory;
-import memories.spi.MemoryAllocator;
-import memories.spi.exception.MemoryAccessException;
-
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.util.HashMap;
 import java.util.Map;
+import memories.spi.Memory;
+import memories.spi.MemoryAllocator;
+import memories.spi.exception.MemoryAccessException;
 
 class MemoryApi implements Memory {
 
@@ -1152,6 +1151,14 @@ class MemoryApi implements Memory {
       this.type = type;
       this.address = rawAddr;
       referent.phantomCleaner = this;
+    }
+
+    public boolean equals(Object o) {
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      PhantomCleaner that = (PhantomCleaner) o;
+      return type == that.type && address == that.address;
     }
 
     public int hashCode() {

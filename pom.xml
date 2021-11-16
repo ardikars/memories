@@ -533,8 +533,9 @@ SPDX-License-Identifier: Apache-2.0
         <profile>
             <id>sonar</id>
             <properties>
-                <sonar.host.url>http://10.14.204.76/web/sonarqube</sonar.host.url>
-                <sonar.login>9ac3775ea2d15193edf777a02472403ab6703231</sonar.login>
+                <sonar.host.url>https://sonarcloud.io/</sonar.host.url>
+                <sonar.organization>ardikars</sonar.organization>
+                <sonar.proectKey>ardikars_memories</sonar.proectKey>
             </properties>
         </profile>
 

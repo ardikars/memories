@@ -88,12 +88,20 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     return null;
   }
 
+  static File getTmpDir() {
+    String property = System.getProperty("memories.tmpdir");
+    if (property == null || property.isEmpty()) {
+      return new File(System.getProperty("java.io.tmpdir"));
+    }
+    return new File(property);
+  }
+
   static void loadLibrary(String path) {
     if (path == null || path.length() == 0) {
       return;
     }
     try {
-      File temp = File.createTempFile("memories", ".jnilib");
+      File temp = File.createTempFile("memories", ".jnilib", getTmpDir());
       temp.deleteOnExit();
       final byte[] buffer = new byte[1024];
       int readBytes;

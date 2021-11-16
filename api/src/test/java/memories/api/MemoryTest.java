@@ -5,6 +5,7 @@
 package memories.api;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 import memories.spi.Memory;
 import memories.spi.MemoryAllocator;
 import memories.spi.exception.MemoryAccessException;
@@ -1645,6 +1646,17 @@ public class MemoryTest {
 
     memory.release();
     copied.release();
+
+    MemoryApi memoryApi = new MemoryApi(null, null, 0L, 0L, null, null);
+    MemoryApi.PhantomCleaner cleaner1 = new MemoryApi.PhantomCleaner(0, 0, memoryApi, null);
+    MemoryApi.PhantomCleaner cleaner2 = new MemoryApi.PhantomCleaner(0, 0, memoryApi, null);
+    MemoryApi.PhantomCleaner cleaner3 = new MemoryApi.PhantomCleaner(1, 0, memoryApi, null);
+    MemoryApi.PhantomCleaner cleaner4 = new MemoryApi.PhantomCleaner(0, 1, memoryApi, null);
+    Assertions.assertFalse(cleaner1.equals(null));
+    Assertions.assertFalse(cleaner1.equals(new LinkedList<>()));
+    Assertions.assertFalse(cleaner1.equals(cleaner3));
+    Assertions.assertFalse(cleaner1.equals(cleaner4));
+    Assertions.assertTrue(cleaner1.equals(cleaner2));
   }
 
   @Test

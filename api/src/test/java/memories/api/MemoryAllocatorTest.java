@@ -178,4 +178,14 @@ public class MemoryAllocatorTest {
           }
         });
   }
+
+  @Test
+  void getTmpDir() {
+    Assertions.assertNotNull(MemoryAllocatorApi.getTmpDir());
+    System.setProperty("memories.tmpdir", "");
+    Assertions.assertNotNull(MemoryAllocatorApi.getTmpDir());
+    System.setProperty("memories.tmpdir", System.getProperty("user.dir"));
+    Assertions.assertNotNull(MemoryAllocatorApi.getTmpDir());
+    System.setProperty("memories.tmpdir", "");
+  }
 }
