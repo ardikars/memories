@@ -36,7 +36,7 @@ Off-heap (Native) memory access for Java. Compatible with the old version of Jav
 ### Usage
 
 ```
-Note: Musl is required (malloc with musl is slow); consider to use mimaloc/jemalloc/others.
+Note: Musl is required on Linux (malloc with musl is slow); consider to use mimaloc/jemalloc/others.
 ```
 
 
