@@ -2000,6 +2000,18 @@ public class MemoryTest {
           }
         });
     Assertions.assertTrue(newMemory.release());
+
+    MemoryApi memoryApi = (MemoryApi) allocator.allocate(LONG_BYTES);
+    MemoryApi.BYTE_BUFFER_CLASS = String.class;
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        new Executable() {
+          @Override
+          public void execute() throws Throwable {
+            memoryApi.as(ByteBuffer.class);
+          }
+        });
+    MemoryApi.BYTE_BUFFER_CLASS = ByteBuffer.class;
   }
 
   @Test

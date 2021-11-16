@@ -15,6 +15,7 @@ import memories.spi.exception.MemoryAccessException;
 
 class MemoryApi implements Memory {
 
+  public static Class<?> BYTE_BUFFER_CLASS;
   static final boolean BE;
 
   private static final int BYTE_SIZE = 1;
@@ -24,6 +25,11 @@ class MemoryApi implements Memory {
 
   static {
     BE = MemoryAllocatorApi.NativeMemoryAllocator.nativeByteOrderIsBE();
+    try {
+      BYTE_BUFFER_CLASS = Class.forName("java.nio.ByteBuffer");
+    } catch (ClassNotFoundException e) {
+      BYTE_BUFFER_CLASS = null;
+    }
   }
 
   // hold the strong reference object created by asBuffer()
@@ -638,7 +644,7 @@ class MemoryApi implements Memory {
 
   // @Override
   public Object as(Class type) {
-    if (type != null && "java.nio.ByteBuffer".equals(type.getName())) {
+    if (type != null && type == BYTE_BUFFER_CLASS) {
       if (capacity > 0x7FFFFFFFL) {
         throw new IllegalStateException("Buffer capacity too large.");
       }
