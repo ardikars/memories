@@ -25,10 +25,14 @@ class MemoryApi implements Memory {
 
   static {
     BE = MemoryAllocatorApi.NativeMemoryAllocator.nativeByteOrderIsBE();
+    BYTE_BUFFER_CLASS = findClass("java.nio.ByteBuffer");
+  }
+
+  static Class<?> findClass(String name) {
     try {
-      BYTE_BUFFER_CLASS = Class.forName("java.nio.ByteBuffer");
+      return Class.forName(name);
     } catch (ClassNotFoundException e) {
-      BYTE_BUFFER_CLASS = null;
+      return null;
     }
   }
 

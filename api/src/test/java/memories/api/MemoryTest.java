@@ -26,6 +26,13 @@ public class MemoryTest {
   private static final MemoryAllocator allocator = MemoryAllocatorApi.getInstance();
 
   @Test
+  void findClass() {
+    Class<?> strCls = MemoryApi.findClass("java.lang.String");
+    Assertions.assertEquals(String.class, strCls);
+    Assertions.assertNull(MemoryApi.findClass("memories.api.NoClass"));
+  }
+
+  @Test
   void capacity() {
     Memory largeBuffer = allocator.allocate(LONG_BYTES);
 
