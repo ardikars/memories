@@ -15,7 +15,7 @@ import memories.spi.exception.MemoryAccessException;
 
 class MemoryApi implements Memory {
 
-  public static Class<?> BYTE_BUFFER_CLASS;
+  public static Class BYTE_BUFFER_CLASS;
   static final boolean BE;
 
   private static final int BYTE_SIZE = 1;
@@ -28,7 +28,7 @@ class MemoryApi implements Memory {
     BYTE_BUFFER_CLASS = findClass("java.nio.ByteBuffer");
   }
 
-  static Class<?> findClass(String name) {
+  static Class findClass(String name) {
     try {
       return Class.forName(name);
     } catch (ClassNotFoundException e) {

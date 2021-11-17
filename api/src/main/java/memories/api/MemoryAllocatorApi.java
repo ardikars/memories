@@ -27,7 +27,11 @@ public class MemoryAllocatorApi implements MemoryAllocator {
     final String osArch = System.getProperty("os.arch").toLowerCase().trim();
     String name = getName(osName);
     String arch = getArch(osArch);
-    loadLibrary(getPath(name, arch));
+    try {
+      loadAndroid();
+    } catch (Exception e) {
+      loadLibrary(getPath(name, arch));
+    }
     NATIVE_BYTE_ORDER = byteOrder(NativeMemoryAllocator.nativeByteOrderIsBE());
   }
 
@@ -94,6 +98,10 @@ public class MemoryAllocatorApi implements MemoryAllocator {
       return new File(System.getProperty("java.io.tmpdir"));
     }
     return new File(property);
+  }
+
+  static void loadAndroid() {
+    System.loadLibrary("memories");
   }
 
   static void loadLibrary(String path) {

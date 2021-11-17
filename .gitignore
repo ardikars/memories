@@ -16,6 +16,7 @@ api/CMakeFiles
 api/CMakeCache.txt
 api/cmake_install.cmake
 api/Makefile
+api/src/main/c/obj
 benchmark/target
 benchmark/dependency-reduced-pom.xml
 spi/target
