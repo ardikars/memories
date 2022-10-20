@@ -29,14 +29,14 @@ all: build
 
 build:
 	rm -f ${TARGET}/memories.jnilib
-	$(CC) ${LIBRARY_FLAGS} $(CFLAGS) $(LDFLAGS) -o ${TARGET}/memories.jnilib memories.c memory.c memory_allocator.c
+	$(CC) ${LIBRARY_FLAGS} $(CFLAGS) $(LDFLAGS) -o ${TARGET}/memories.jnilib memories.c memory.c memory_allocator.c file.c
 
 win64:
 	rm -f ${TARGET}-x86_64/memories.jnilib
-	$(CC) ${LIBRARY_FLAGS} -m64 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86_64/memories.jnilib memories.c memory.c memory_allocator.c
+	$(CC) ${LIBRARY_FLAGS} -m64 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86_64/memories.jnilib memories.c memory.c memory_allocator.c file.c
 
 win32:
 	rm -f ${TARGET}-x86_64/memories.jnilib
-	$(CC) ${LIBRARY_FLAGS} -m32 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86/memories.jnilib memories.c memory.c memory_allocator.c
+	$(CC) ${LIBRARY_FLAGS} -m32 $(CFLAGS) $(LDFLAGS) -o ${TARGET}-x86/memories.jnilib memories.c memory.c memory_allocator.c file.c
 
 # find . -type f -name "*.jnilib" -delete

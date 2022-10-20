@@ -73,3 +73,5 @@ extern jmethodID CLEAN_MID;
 int memory_register_native_methods(JNIEnv *env);
 
 int memory_allocator_register_native_methods(JNIEnv *env);
+
+int memory_file_register_native_methods(JNIEnv *env);
